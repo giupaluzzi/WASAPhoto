@@ -379,7 +379,6 @@ paths:
       security:
         - bearerAuth: []
         
-  #Review needed
   /users/{uid}/photos/{photoid}/comments/:
     post:
       operationId:  commentPhoto
