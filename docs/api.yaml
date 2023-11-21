@@ -19,10 +19,11 @@ components:
           example:  12234
         username:
           description:  "User's username"
-          type: string 
-          minLength:  6
-          maxLength:  32
-          example:  "MarioRossi11"
+          type: string
+          example: Maria
+          pattern: 'ˆ.*?$'
+          minLength: 3
+          maxLength: 16
         following:
           description:  "List of followed uid"
           type: array
@@ -55,13 +56,13 @@ components:
           type: integer
           readOnly: true
           example:  1762
-        like:
+        likes:
           description:  "List of uid who liked the photo"
           type: array
           items:
             type: integer
           example:  [15422, 63654]
-        comment:
+        comments:
           description:  "List of comments of the photo"
           type: array
           items:
@@ -100,11 +101,7 @@ paths:
               type: object
               properties:
                 name:
-                  type: string
-                  example: Maria
-                  pattern: 'ˆ.*?$'
-                  minLength: 3
-                  maxLength: 16
+                  schema: { $ref: '#/components/schemas/User/properties/username'}
         required: true
       responses:
         '201':
@@ -123,6 +120,7 @@ paths:
   /users/{uid}:
     get:
       operationId:  getUserProfile
+      tags: ["User"]
       summary:  Get user profile
       description:  |
         Return the user's photos in reverse chronological order
@@ -151,6 +149,7 @@ paths:
   /users/{uid}/stream:
     get:
       operationId:  getMyStream
+      tags: ["User"]
       summary:  Get the user's stream 
       description:  |
         Return the photo stream of the logged user. 
@@ -188,6 +187,7 @@ paths:
         
     put:
       operationId:  setMyUserName
+      tags: ["User"]
       summary:  Set user's username
       description:  |
         Set or update user's username, using the data 
@@ -223,6 +223,7 @@ paths:
       example:  17266
     put:
       operationId:  followUser
+      tags: ["User"]
       summary:  Follow an user
       description:  "Follow a new user with given uid"
       responses:
@@ -234,6 +235,7 @@ paths:
         - bearerAuth: []
     delete:
       operationId:  unfollowUser
+      tags: ["User"]
       summary:  Unfollow an user
       description:  "Unfollow an user with given uid"
       responses:
@@ -260,6 +262,7 @@ paths:
       example:  12716
     put:
       operationId:  banUser
+      tags: ["User"]
       summary:  Ban an user
       description:  "Ban an user with given uid"
       responses:
@@ -272,6 +275,7 @@ paths:
         
     delete:
       operationId:  unbanUser
+      tags: ["User"]
       summary:  Unban an user
       description:  "Remove the ban on an user with given uid"
       responses:
@@ -285,6 +289,7 @@ paths:
   /users/{uid}/photos/:
     post:
       operationId:  uploadPhoto
+      tags: ["Photo"]
       summary:  Upload a photo
       description:  "Upload a photo and associate it with given uid"
       parameters:
@@ -315,6 +320,7 @@ paths:
   /users/{uid}/photos/{photoid}:
     delete:
       operationId:  deletePhoto
+      tags: ["Photo"]
       summary:  Delete a photo
       description:  "Remove a photo from user's profile"
       parameters:
@@ -358,6 +364,7 @@ paths:
         example:  9128
     put:
       operationId:  likePhoto 
+      tags: ["Photo"]
       summary:  Like a photo
       description:  "Like a photo with given photoid"
       responses:
@@ -369,6 +376,7 @@ paths:
         - bearerAuth: []
     delete:
       operationId:  unlikePhoto
+      tags: ["Photo"]
       summary:  Unlike a photo
       description:  "Remove a like on a photo with given photoid"
       responses:
@@ -379,10 +387,10 @@ paths:
       security:
         - bearerAuth: []
         
-  #Review needed
   /users/{uid}/photos/{photoid}/comments/:
     post:
       operationId:  commentPhoto
+      tags: ["Photo"]
       summary:  "Comment a photo"
       description:  "Add  a comment to a photo with given photoid, author uid and uid of the user adding the comment. "
       parameters:
@@ -424,7 +432,7 @@ paths:
           description:  "Comment added successfully"
           content:
             application/json:
-              schema: { $ref: '#/components/Photo/properties/comment'}
+              schema: { $ref: '#/components/schemas/Photo/properties/comments'}
         "404":
           description:  "Not found, e.g. the photo does not exist"
       security:
@@ -433,6 +441,7 @@ paths:
   /users/{uid}/photos/{photoid}/comments/{commentid}:
     delete:
       operationId:  uncommentPhoto
+      tags: ["Photo"]
       summary:  Remove a comment on a photo
       description:  "Remove a comment on a photo, only if the action is performed by the author of the photo"
       parameters:
