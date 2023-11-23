@@ -1,0 +1,472 @@
+openapi: 3.0.0
+
+info:
+  title:  WASAPhoto API
+  description:  "This document describes WASAPhoto API"
+  version: "1"
+  
+components:
+  schemas:
+    User:
+      title:  User
+      description:  "This object represent a single user"
+      type: object
+      properties:
+        uid:
+          description:  "Unique user identifier"
+          type: integer
+          readOnly: true
+          example:  12234
+        username:
+          description:  "User's username"
+          type: string
+          example: Maria
+          pattern: 'ˆ.*?$'
+          minLength: 3
+          maxLength: 16
+        following:
+          description:  "List of followed uid"
+          type: array
+          items:
+            type: integer
+          example:  [12323, 12534, 57467]
+        banned:
+          description:  "List of banned uid"
+          type: array
+          items:
+            type: integer
+          example:  [3243, 3745, 7989]
+        photos:
+          description: "List of user's photos in reverse chronological order"
+          type: array
+          items:  {$ref: "#/components/schemas/Photo"}
+    
+    Photo:
+      title:  Photo
+      description:  "This object represent a single photo"
+      type: object
+      properties:
+        photoid:  
+          description:  "Unique photo identifier"
+          type: integer
+          readOnly: true
+          example:  85746
+        uid:
+          description:  "Unique user identifier of the author"
+          type: integer
+          readOnly: true
+          example:  1762
+        likes:
+          description:  "List of uid who liked the photo"
+          type: array
+          items:
+            type: integer
+          example:  [15422, 63654]
+        comments:
+          description:  "List of comments of the photo"
+          type: array
+          items:
+            type: string
+          example:  ["Nice photo", "Nice pic"]
+        date:
+          description:  "Date when the photo was uploaded, with YYYY-MM-DD format"
+          type: string
+          format: date
+          example:  "2023-12-25"
+        image:
+          description:  "png file of the photo"
+          type: string
+          format: binary
+  securitySchemes:
+    bearerAuth: 
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+paths:
+  /session:
+    post:
+      tags: ["login"]
+      summary: Logs in the user
+      description: |
+        If the user does not exist, it will be created,
+        and an identifier is returned.
+        If the user exists, the user identifier is returned.
+      operationId: doLogin
+      requestBody:
+        description: User details
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  schema: { $ref: '#/components/schemas/User/properties/username'}
+        required: true
+      responses:
+        '201':
+          description: User log-in action successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  identifier:
+                    # change here if you decide to use an integer
+                    # or any other type of identifier
+                    type: integer
+                    example: "12345"
+
+  /users/{uid}:
+    get:
+      operationId:  getUserProfile
+      tags: ["User"]
+      summary:  Get user profile
+      description:  |
+        Return the user's photos in reverse chronological order
+        and the user's followers and following
+      parameters:
+        - name: uid
+          in: path
+          required: true
+          description:  "Unique user identifier"
+          schema:
+            type: integer
+            example:  1897
+      responses:
+        "200":
+          description:  "User's profile"
+          content:
+            application/json:
+              schema: 
+                type: array
+                items:  { $ref: '#/components/schemas/User'}
+        "404":
+          description:  "User not found, e.g. the uid does not exist "
+      security:
+        - bearerAuth: []
+        
+  /users/{uid}/stream:
+    get:
+      operationId:  getMyStream
+      tags: ["User"]
+      summary:  Get the user's stream 
+      description:  |
+        Return the photo stream of the logged user. 
+        It includes photos of the followed users in reverse chronological order
+      parameters:
+        - name: uid
+          in: path
+          required: true
+          description:  "Unique user identifier"
+          schema:
+            type: integer
+            example:  17826
+      responses:
+        "200":
+          description:  "User's stream"
+          content:
+            application/json:
+              schema: 
+                type: array
+                items:  { $ref: '#/components/schemas/Photo'}
+        "404":
+          description:  "User not found, e.g. user does not exist"
+      security:
+        - bearerAuth: []
+        
+  /users/{uid}/username:
+    parameters:
+    - name: uid
+      in: path
+      required: true
+      description:  "Unique user identifier"
+      schema:
+        type: integer
+        example:  18276
+        
+    put:
+      operationId:  setMyUserName
+      tags: ["User"]
+      summary:  Set user's username
+      description:  |
+        Set or update user's username, using the data 
+        in the body of the request
+      requestBody:
+        content:
+          application/json: 
+            schema: { $ref: "#/components/schemas/User/properties/username" }
+      responses:
+        "200":
+          description:  Username saved successfully
+          content:
+            application/json:
+              schema: { $ref:"#/components/schemas/User/properties/username"}
+        "400": 
+          description:  bad request
+      security:
+        - bearerAuth: []
+        
+  /users/{uid}/following/{followinguid}:
+    parameters:  
+    - name: uid
+      in: path
+      required: true
+      description:  "Unique user identifier"
+      schema:
+        type: integer
+        example:  18276
+    - name: followinguid
+      in: path
+      required: true
+      description:  "Unique user identifier of the user to be followed or unfollowed"
+      example:  17266
+    put:
+      operationId:  followUser
+      tags: ["User"]
+      summary:  Follow an user
+      description:  "Follow a new user with given uid"
+      responses:
+        "200":
+          description:  "Successfully followed the user"
+        "400":
+          description:  "Bad request, e.g. user already followed"
+      security:
+        - bearerAuth: []
+    delete:
+      operationId:  unfollowUser
+      tags: ["User"]
+      summary:  Unfollow an user
+      description:  "Unfollow an user with given uid"
+      responses:
+        "200":
+          description:  "Successfully unfollowed the user"
+        "404":
+          description:  "Not found, e.g. user already unfollowed"
+      security:
+        - bearerAuth: []
+        
+  /users/{uid}/banned/{banneduid}:
+    parameters:
+    - name: uid
+      in: path
+      required: true
+      description:  "Unique user identifier"
+      schema:
+        type: integer
+        example:  912874
+    - name: banneduid
+      in: path
+      required: true
+      description:  "Unique user identifier of the user to be banned or unbanned"
+      example:  12716
+    put:
+      operationId:  banUser
+      tags: ["User"]
+      summary:  Ban an user
+      description:  "Ban an user with given uid"
+      responses:
+        "200":
+          description:  "Successfully banned the user"
+        "400":
+          description:  "Bad request, e.g. user already banned"
+      security:
+        - bearerAuth: []
+        
+    delete:
+      operationId:  unbanUser
+      tags: ["User"]
+      summary:  Unban an user
+      description:  "Remove the ban on an user with given uid"
+      responses:
+        "200":
+          description:  "Successfully unbanned an user"
+        "404":
+          description:  "Not found, e.g. user already unbanned"
+      security:
+        - bearerAuth: []
+        
+  /users/{uid}/photos/:
+    post:
+      operationId:  uploadPhoto
+      tags: ["Photo"]
+      summary:  Upload a photo
+      description:  "Upload a photo and associate it with given uid"
+      parameters:
+      - name: uid
+        in: path
+        required: true
+        description:  "Unique user identifier of the user who uploads the photo"
+        schema:
+          type: integer
+          example:  1213
+      requestBody:  
+        content:
+          image/png:
+            schema:
+              type: string
+              format: binary
+      responses:
+        "200":
+          description:  "Photo uploaded successfully"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Photo"}
+        "400":
+          description:  "Bad request, e.g. image format not supported"
+      security:
+        - bearerAuth: []
+        
+  /users/{uid}/photos/{photoid}:
+    delete:
+      operationId:  deletePhoto
+      tags: ["Photo"]
+      summary:  Delete a photo
+      description:  "Remove a photo from user's profile"
+      parameters:
+      - name: photoid
+        in: path
+        required: true
+        description:  "Unique photo identifier of the photo to be deleted"
+        schema: 
+          type: integer
+          example:  81736
+      responses:  
+        "200":
+          description:  "Photo deleted successfully"
+        "404":
+          description:  "Photo not found"
+      security:
+        - bearerAuth: []
+        
+  /users/{uid}/photos/{photoid}/likes/{likeid}:
+    parameters:
+    - name: uid
+      in: path
+      required: true
+      description:  "Unique user identifier"
+      schema:
+        type: integer 
+        example:  86217
+    - name: photoid
+      in: path
+      required: true
+      description:  "Unique photo identifier"
+      schema:
+        type: integer
+        example:  82176
+    - name: likeid
+      in: path
+      required: true
+      description:  "Unique user identifier of the user who liked or unliked the photo"
+      schema:
+        type: integer
+        example:  9128
+    put:
+      operationId:  likePhoto 
+      tags: ["Photo"]
+      summary:  Like a photo
+      description:  "Like a photo with given photoid"
+      responses:
+        "200":
+          description:  "Successfully liked the photo"
+        "400":
+          description:  "Bad request, e.g. photo already liked"
+      security:
+        - bearerAuth: []
+    delete:
+      operationId:  unlikePhoto
+      tags: ["Photo"]
+      summary:  Unlike a photo
+      description:  "Remove a like on a photo with given photoid"
+      responses:
+        "200":
+          description:  "Successfully unliked the photo"
+        "404":
+          description:  "Not found, e.g. photo removed from the system"
+      security:
+        - bearerAuth: []
+        
+  /users/{uid}/photos/{photoid}/comments/:
+    post:
+      operationId:  commentPhoto
+      tags: ["Photo"]
+      summary:  "Comment a photo"
+      description:  "Add  a comment to a photo with given photoid, author uid and uid of the user adding the comment. "
+      parameters:
+      - name: uid
+        in: path
+        required: true
+        description:  "Unique user identifier"
+        schema:
+          type: integer 
+          example:  86217    
+      - name: photoid
+        in: path
+        required: true
+        description:  "Unique photo identifier"
+        schema:
+          type: integer
+          example:  82176
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                commentId:
+                  description:  "Unique comment identifier"
+                  type: integer
+                  example:  78164
+                userId:
+                  description:  "uid of the user adding the commment"
+                  type: integer
+                  example:  98735
+                text:
+                  description:  "Text of the comment"
+                  type: string
+                  example:  "Nice pic!"
+      responses:
+        "200":
+          description:  "Comment added successfully"
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Photo/properties/comments'}
+        "404":
+          description:  "Not found, e.g. the photo does not exist"
+      security:
+        - bearerAuth: []
+        
+  /users/{uid}/photos/{photoid}/comments/{commentid}:
+    delete:
+      operationId:  uncommentPhoto
+      tags: ["Photo"]
+      summary:  Remove a comment on a photo
+      description:  "Remove a comment on a photo, only if the action is performed by the author of the photo"
+      parameters:
+      - name: uid
+        in: path
+        required: true
+        description:  "Unique user identifier"
+        schema:
+          type: integer 
+          example:  86217    
+      - name: photoid
+        in: path
+        required: true
+        description:  "Unique photo identifier"
+        schema:
+          type: integer
+          example:  82176
+      - name: commentId
+        in: path
+        required: true
+        description:  "Unique comment identifier"
+      responses:
+        "200":
+          description:  "Comment successfully deleted"
+        "404":
+          description:  "Not found, e.g. comment already removed"
+      security:
+        - bearerAuth: []
