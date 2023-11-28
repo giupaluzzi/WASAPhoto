@@ -4,9 +4,72 @@ info:
   title:  WASAPhoto API
   description:  "This document describes WASAPhoto API"
   version: "1"
-  
+
+tags:
+  - name: ["login"]
+    description:  "Login operations"
+  - name: ["user"]
+    description: "Users operations" 
+  - name: ["photo"]
+    description:  "Photos operations"
+      
 components:
+  
+  parameters: 
+  
+    uid:
+      name: uid
+      in: path
+      required: true
+      description:  "Unique user identifier"
+      schema:
+        type: integer
+        example:  1234
+  
+    followinguid:
+      name: followinguid
+      in: path
+      required: true
+      description:  "Unique user identifier of the user to be followed or unfollowed"
+      schema:
+        type: integer
+        example:  4321
+  
+    banneduid:
+      name: banneduid
+      in: path
+      required: true
+      description:  "Unique user identifier of the user to be banned or unbanned"
+      schema:
+        type: integer
+        example:  1324
+  
+    photoid:
+      name: photoid
+      in: path
+      required: true
+      description:  "Unique photo identifier of the photo to be deleted"
+      schema: 
+        type: integer
+        example:  6987
+  
+    likeid:
+      name: likeid
+      in: path
+      required: true
+      description:  "Unique user identifier of the user who liked or unliked the photo"
+      schema:
+        type: integer
+        example:  9128
+  
+    commentid:
+      name: commentid
+      in: path
+      required: true
+      description:  "Unique comment identifier"
+  
   schemas:
+  
     User:
       title:  User
       description:  "This object represent a single user"
@@ -16,7 +79,7 @@ components:
           description:  "Unique user identifier"
           type: integer
           readOnly: true
-          example:  12234
+          example:  1234
         username:
           description:  "User's username"
           type: string
@@ -40,7 +103,7 @@ components:
           description: "List of user's photos in reverse chronological order"
           type: array
           items:  {$ref: "#/components/schemas/Photo"}
-    
+  
     Photo:
       title:  Photo
       description:  "This object represent a single photo"
@@ -52,10 +115,7 @@ components:
           readOnly: true
           example:  85746
         uid:
-          description:  "Unique user identifier of the author"
-          type: integer
-          readOnly: true
-          example:  1762
+          $ref: "#/components/schemas/User/properties/uid"
         likes:
           description:  "List of uid who liked the photo"
           type: array
@@ -66,17 +126,31 @@ components:
           description:  "List of comments of the photo"
           type: array
           items:
-            type: string
-          example:  ["Nice photo", "Nice pic"]
+            description:  "A Comment contains uid of the user who commented, photoid of the commented photo, commentid and text of the comment"
+            type: object
+            properties:
+              uid:
+                $ref: "#/components/schemas/User/properties/uid"
+              photoid:
+                $ref: "#/components/schemas/Photo/properties/photoid"
+              commentid:
+                description:  "Unique comment identifier"
+                type: integer
+                example:  123
+              comment:
+                description:  "Text of the comment"
+                type: string
+                example:  "Nice pic!"
         date:
           description:  "Date when the photo was uploaded, with YYYY-MM-DD format"
           type: string
           format: date
           example:  "2023-12-25"
         image:
-          description:  "png file of the photo"
+          description:  "Data of the photo"
           type: string
           format: binary
+  
   securitySchemes:
     bearerAuth: 
       type: http
@@ -86,7 +160,8 @@ components:
 paths:
   /session:
     post:
-      tags: ["login"]
+      tags:
+        - ["login"]
       summary: Logs in the user
       description: |
         If the user does not exist, it will be created,
@@ -118,21 +193,16 @@ paths:
                     example: "12345"
 
   /users/{uid}:
+    parameters:
+      - $ref: "#/components/parameters/uid"
     get:
       operationId:  getUserProfile
-      tags: ["User"]
+      tags: 
+        - ["user"]
       summary:  Get user profile
       description:  |
         Return the user's photos in reverse chronological order
         and the user's followers and following
-      parameters:
-        - name: uid
-          in: path
-          required: true
-          description:  "Unique user identifier"
-          schema:
-            type: integer
-            example:  1897
       responses:
         "200":
           description:  "User's profile"
@@ -147,21 +217,16 @@ paths:
         - bearerAuth: []
         
   /users/{uid}/stream:
+    parameters:
+      - $ref: "#/components/parameters/uid"
     get:
       operationId:  getMyStream
-      tags: ["User"]
+      tags: 
+        - ["user"]
       summary:  Get the user's stream 
       description:  |
         Return the photo stream of the logged user. 
         It includes photos of the followed users in reverse chronological order
-      parameters:
-        - name: uid
-          in: path
-          required: true
-          description:  "Unique user identifier"
-          schema:
-            type: integer
-            example:  17826
       responses:
         "200":
           description:  "User's stream"
@@ -177,17 +242,12 @@ paths:
         
   /users/{uid}/username:
     parameters:
-    - name: uid
-      in: path
-      required: true
-      description:  "Unique user identifier"
-      schema:
-        type: integer
-        example:  18276
+      - $ref: "#/components/parameters/uid"
         
     put:
       operationId:  setMyUserName
-      tags: ["User"]
+      tags:
+        - ["user"]
       summary:  Set user's username
       description:  |
         Set or update user's username, using the data 
@@ -208,22 +268,13 @@ paths:
         - bearerAuth: []
         
   /users/{uid}/following/{followinguid}:
-    parameters:  
-    - name: uid
-      in: path
-      required: true
-      description:  "Unique user identifier"
-      schema:
-        type: integer
-        example:  18276
-    - name: followinguid
-      in: path
-      required: true
-      description:  "Unique user identifier of the user to be followed or unfollowed"
-      example:  17266
+    parameters:
+      - $ref: "#/components/parameters/uid"
+      - $ref: "#/components/parameters/followinguid"  
     put:
       operationId:  followUser
-      tags: ["User"]
+      tags:
+        - ["user"]
       summary:  Follow an user
       description:  "Follow a new user with given uid"
       responses:
@@ -235,7 +286,8 @@ paths:
         - bearerAuth: []
     delete:
       operationId:  unfollowUser
-      tags: ["User"]
+      tags:
+      - ["user"]
       summary:  Unfollow an user
       description:  "Unfollow an user with given uid"
       responses:
@@ -248,21 +300,12 @@ paths:
         
   /users/{uid}/banned/{banneduid}:
     parameters:
-    - name: uid
-      in: path
-      required: true
-      description:  "Unique user identifier"
-      schema:
-        type: integer
-        example:  912874
-    - name: banneduid
-      in: path
-      required: true
-      description:  "Unique user identifier of the user to be banned or unbanned"
-      example:  12716
+      - $ref: "#/components/parameters/uid"
+      - $ref: "#/components/parameters/banneduid"
     put:
       operationId:  banUser
-      tags: ["User"]
+      tags:
+        - ["user"]
       summary:  Ban an user
       description:  "Ban an user with given uid"
       responses:
@@ -275,7 +318,8 @@ paths:
         
     delete:
       operationId:  unbanUser
-      tags: ["User"]
+      tags: 
+      - ["user"]
       summary:  Unban an user
       description:  "Remove the ban on an user with given uid"
       responses:
@@ -287,22 +331,18 @@ paths:
         - bearerAuth: []
         
   /users/{uid}/photos/:
+    parameters:
+      - $ref: "#/components/parameters/uid"
     post:
       operationId:  uploadPhoto
-      tags: ["Photo"]
+      tags: 
+        - ["photo"]
       summary:  Upload a photo
       description:  "Upload a photo and associate it with given uid"
-      parameters:
-      - name: uid
-        in: path
+      requestBody:
         required: true
-        description:  "Unique user identifier of the user who uploads the photo"
-        schema:
-          type: integer
-          example:  1213
-      requestBody:  
         content:
-          image/png:
+          image/*:
             schema:
               type: string
               format: binary
@@ -318,19 +358,14 @@ paths:
         - bearerAuth: []
         
   /users/{uid}/photos/{photoid}:
+    parameters:
+      - $ref: "#/components/parameters/photoid" 
     delete:
       operationId:  deletePhoto
-      tags: ["Photo"]
+      tags: 
+        - ["photo"]
       summary:  Delete a photo
       description:  "Remove a photo from user's profile"
-      parameters:
-      - name: photoid
-        in: path
-        required: true
-        description:  "Unique photo identifier of the photo to be deleted"
-        schema: 
-          type: integer
-          example:  81736
       responses:  
         "200":
           description:  "Photo deleted successfully"
@@ -341,30 +376,13 @@ paths:
         
   /users/{uid}/photos/{photoid}/likes/{likeid}:
     parameters:
-    - name: uid
-      in: path
-      required: true
-      description:  "Unique user identifier"
-      schema:
-        type: integer 
-        example:  86217
-    - name: photoid
-      in: path
-      required: true
-      description:  "Unique photo identifier"
-      schema:
-        type: integer
-        example:  82176
-    - name: likeid
-      in: path
-      required: true
-      description:  "Unique user identifier of the user who liked or unliked the photo"
-      schema:
-        type: integer
-        example:  9128
+      - $ref: "#/components/paremeters/uid" 
+      - $ref: "#/components/paremeters/photoid"
+      - $ref: "#/components/paremeters/likeid"    
     put:
       operationId:  likePhoto 
-      tags: ["Photo"]
+      tags: 
+        - ["photo"]
       summary:  Like a photo
       description:  "Like a photo with given photoid"
       responses:
@@ -376,7 +394,8 @@ paths:
         - bearerAuth: []
     delete:
       operationId:  unlikePhoto
-      tags: ["Photo"]
+      tags: 
+        - ["photo"]
       summary:  Unlike a photo
       description:  "Remove a like on a photo with given photoid"
       responses:
@@ -388,26 +407,15 @@ paths:
         - bearerAuth: []
         
   /users/{uid}/photos/{photoid}/comments/:
+    parameters:
+      - $ref: "#/components/parameters/uid"
+      - $ref: "#/components/parameters/photoid"
     post:
       operationId:  commentPhoto
-      tags: ["Photo"]
+      tags: 
+        - ["photo"]
       summary:  "Comment a photo"
       description:  "Add  a comment to a photo with given photoid, author uid and uid of the user adding the comment. "
-      parameters:
-      - name: uid
-        in: path
-        required: true
-        description:  "Unique user identifier"
-        schema:
-          type: integer 
-          example:  86217    
-      - name: photoid
-        in: path
-        required: true
-        description:  "Unique photo identifier"
-        schema:
-          type: integer
-          example:  82176
       requestBody:
         required: true
         content:
@@ -439,30 +447,16 @@ paths:
         - bearerAuth: []
         
   /users/{uid}/photos/{photoid}/comments/{commentid}:
+    parameters:
+      - $ref: "#/components/parameters/uid"
+      - $ref: "#/components/parameters/photoid"
+      - $ref: "#/components/parameters/commentid"
     delete:
       operationId:  uncommentPhoto
-      tags: ["Photo"]
+      tags: 
+      - ["photo"]
       summary:  Remove a comment on a photo
       description:  "Remove a comment on a photo, only if the action is performed by the author of the photo"
-      parameters:
-      - name: uid
-        in: path
-        required: true
-        description:  "Unique user identifier"
-        schema:
-          type: integer 
-          example:  86217    
-      - name: photoid
-        in: path
-        required: true
-        description:  "Unique photo identifier"
-        schema:
-          type: integer
-          example:  82176
-      - name: commentId
-        in: path
-        required: true
-        description:  "Unique comment identifier"
       responses:
         "200":
           description:  "Comment successfully deleted"
