@@ -67,6 +67,7 @@ components:
       in: path
       required: true
       description:  "Unique comment identifier"
+      example:  6519
   
   schemas:
   
@@ -90,18 +91,32 @@ components:
         following:
           description:  "List of followed uid"
           type: array
+          minItems:  0
+          maxItems:  9999
           items:
             type: integer
           example:  [12323, 12534, 57467]
+        followers:
+          description:  "List of followers"
+          type: array
+          minItems: 0
+          maxItems: 9999
+          items:  
+            type: integer
+          example:  [1234,4321]
         banned:
           description:  "List of banned uid"
           type: array
+          minItems: 0
+          maxItems: 9999
           items:
             type: integer
           example:  [3243, 3745, 7989]
         photos:
           description: "List of user's photos in reverse chronological order"
           type: array
+          minItems: 0
+          maxItems: 9999
           items:  {$ref: "#/components/schemas/Photo"}
   
     Photo:
@@ -119,12 +134,16 @@ components:
         likes:
           description:  "List of uid who liked the photo"
           type: array
+          minItems: 0
+          maxItems: 9999
           items:
             type: integer
           example:  [15422, 63654]
         comments:
           description:  "List of comments of the photo"
           type: array
+          minItems: 0
+          maxItems: 9999
           items:
             description:  "A Comment contains uid of the user who commented, photoid of the commented photo, commentid and text of the comment"
             type: object
@@ -137,9 +156,12 @@ components:
                 description:  "Unique comment identifier"
                 type: integer
                 example:  123
-              comment:
+              commenttext:
                 description:  "Text of the comment"
                 type: string
+                minLength:  1
+                maxLength:  50
+                pattern: 'ˆ.*?$'
                 example:  "Nice pic!"
         date:
           description:  "Date when the photo was uploaded, with YYYY-MM-DD format"
@@ -209,8 +231,7 @@ paths:
           content:
             application/json:
               schema: 
-                type: array
-                items:  { $ref: '#/components/schemas/User'}
+                $ref: '#/components/schemas/User'
         "404":
           description:  "User not found, e.g. the uid does not exist "
       security:
@@ -234,6 +255,8 @@ paths:
             application/json:
               schema: 
                 type: array
+                minItems: 0
+                maxItems: 15
                 items:  { $ref: '#/components/schemas/Photo'}
         "404":
           description:  "User not found, e.g. user does not exist"
@@ -276,7 +299,7 @@ paths:
       tags:
         - ["user"]
       summary:  Follow an user
-      description:  "Follow a new user with given uid"
+      description:  "Follow a new user with given uid and update followers list of the new user"
       responses:
         "200":
           description:  "Successfully followed the user"
@@ -346,6 +369,8 @@ paths:
             schema:
               type: string
               format: binary
+              minLength:  0
+              maxLength:  9999
       responses:
         "200":
           description:  "Photo uploaded successfully"
@@ -431,9 +456,10 @@ paths:
                   description:  "uid of the user adding the commment"
                   type: integer
                   example:  98735
-                text:
+                commenttext:
                   description:  "Text of the comment"
                   type: string
+                  pattern: 'ˆ.*?$'
                   example:  "Nice pic!"
       responses:
         "200":
@@ -454,7 +480,7 @@ paths:
     delete:
       operationId:  uncommentPhoto
       tags: 
-      - ["photo"]
+        - ["photo"]
       summary:  Remove a comment on a photo
       description:  "Remove a comment on a photo, only if the action is performed by the author of the photo"
       responses:
