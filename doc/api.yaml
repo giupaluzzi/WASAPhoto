@@ -6,11 +6,11 @@ info:
   version: "1"
 
 tags:
-  - name: ["login"]
+  - name: "login"
     description:  "Login operations"
-  - name: ["user"]
+  - name: "user"
     description: "Users operations" 
-  - name: ["photo"]
+  - name: "photo"
     description:  "Photos operations"
       
 components:
@@ -23,17 +23,15 @@ components:
       required: true
       description:  "Unique user identifier"
       schema:
-        type: integer
-        example:  1234
-  
+        $ref: "#/components/schemas/User/properties/uid"
+
     followinguid:
       name: followinguid
       in: path
       required: true
       description:  "Unique user identifier of the user to be followed or unfollowed"
       schema:
-        type: integer
-        example:  4321
+        $ref: "#/components/schemas/User/properties/uid"
   
     banneduid:
       name: banneduid
@@ -41,8 +39,7 @@ components:
       required: true
       description:  "Unique user identifier of the user to be banned or unbanned"
       schema:
-        type: integer
-        example:  1324
+        $ref: "#/components/schemas/User/properties/uid"
   
     photoid:
       name: photoid
@@ -50,27 +47,36 @@ components:
       required: true
       description:  "Unique photo identifier of the photo to be deleted"
       schema: 
-        type: integer
-        example:  6987
-  
+        $ref: "#/components/schemas/Photo/properties/photoid"
+
     likeid:
       name: likeid
       in: path
       required: true
       description:  "Unique user identifier of the user who liked or unliked the photo"
       schema:
-        type: integer
-        example:  9128
+        $ref: "#/components/schemas/User/properties/uid"
   
     commentid:
       name: commentid
       in: path
       required: true
       description:  "Unique comment identifier"
-      example:  6519
-  
+      schema:
+        $ref: "#/components/schemas/Comment/properties/commentid"
+
   schemas:
-  
+    Username:
+      description:  "This object represent an user's username"
+      type: object
+      properties:
+        name:
+          type: string
+          example:  "Maria"
+          pattern: 'ˆ.*?$'
+          minLength: 3
+          maxLength: 16
+          
     User:
       title:  User
       description:  "This object represent a single user"
@@ -80,45 +86,40 @@ components:
           description:  "Unique user identifier"
           type: integer
           readOnly: true
-          example:  1234
+          example:  "1234"
         username:
-          description:  "User's username"
-          type: string
-          example: Maria
-          pattern: 'ˆ.*?$'
-          minLength: 3
-          maxLength: 16
+          $ref: "#/components/schemas/Username/properties/name"
         following:
           description:  "List of followed uid"
           type: array
           minItems:  0
           maxItems:  9999
           items:
-            type: integer
-          example:  [12323, 12534, 57467]
+            $ref: "#/components/schemas/User/properties/uid"
+          example:  ["54321", "12345"]
         followers:
           description:  "List of followers"
           type: array
           minItems: 0
           maxItems: 9999
           items:  
-            type: integer
-          example:  [1234,4321]
+            $ref: "#/components/schemas/User/properties/uid"
+          example:  ["6789", "9876"]
         banned:
           description:  "List of banned uid"
           type: array
           minItems: 0
           maxItems: 9999
           items:
-            type: integer
-          example:  [3243, 3745, 7989]
+            $ref: "#/components/schemas/User/properties/uid"
+          example:  ["4567", "7654"]
         photos:
           description: "List of user's photos in reverse chronological order"
           type: array
           minItems: 0
           maxItems: 9999
           items:  {$ref: "#/components/schemas/Photo"}
-  
+          
     Photo:
       title:  Photo
       description:  "This object represent a single photo"
@@ -128,7 +129,7 @@ components:
           description:  "Unique photo identifier"
           type: integer
           readOnly: true
-          example:  85746
+          example:  "85746"
         uid:
           $ref: "#/components/schemas/User/properties/uid"
         likes:
@@ -137,8 +138,8 @@ components:
           minItems: 0
           maxItems: 9999
           items:
-            type: integer
-          example:  [15422, 63654]
+            $ref: "#/components/schemas/User/properties/uid"
+          example:  ["1234","4321","4132"]
         comments:
           description:  "List of comments of the photo"
           type: array
@@ -153,16 +154,9 @@ components:
               photoid:
                 $ref: "#/components/schemas/Photo/properties/photoid"
               commentid:
-                description:  "Unique comment identifier"
-                type: integer
-                example:  123
-              commenttext:
-                description:  "Text of the comment"
-                type: string
-                minLength:  1
-                maxLength:  50
-                pattern: 'ˆ.*?$'
-                example:  "Nice pic!"
+                $ref: "#/components/schemas/Comment/properties/commentid"
+              commentText:
+                $ref: "#/components/schemas/Comment/properties/commentText"
         date:
           description:  "Date when the photo was uploaded, with YYYY-MM-DD format"
           type: string
@@ -173,6 +167,23 @@ components:
           type: string
           format: binary
   
+    Comment:
+      title:  Comment
+      description:  "This object represents a single comment"
+      type: object
+      properties:
+        commentid:
+          description:  "Unique comment identifier"
+          type: integer
+          example:  "78164"
+        uid:
+          $ref: "#/components/schemas/User/properties/uid"
+        commentText:
+          description:  "Text of the comment"
+          type: string
+          pattern: 'ˆ.*?$'
+          example:  "Nice pic!"
+
   securitySchemes:
     bearerAuth: 
       type: http
@@ -183,7 +194,7 @@ paths:
   /session:
     post:
       tags:
-        - ["login"]
+        - "login"
       summary: Logs in the user
       description: |
         If the user does not exist, it will be created,
@@ -198,7 +209,7 @@ paths:
               type: object
               properties:
                 name:
-                  schema: { $ref: '#/components/schemas/User/properties/username'}
+                  $ref: '#/components/schemas/Username/properties/name'
         required: true
       responses:
         '201':
@@ -209,10 +220,8 @@ paths:
                 type: object
                 properties:
                   identifier:
-                    # change here if you decide to use an integer
-                    # or any other type of identifier
                     type: integer
-                    example: "12345"
+                    example: "012345"
 
   /users/{uid}:
     parameters:
@@ -220,7 +229,7 @@ paths:
     get:
       operationId:  getUserProfile
       tags: 
-        - ["user"]
+        - "user"
       summary:  Get user profile
       description:  |
         Return the user's photos in reverse chronological order
@@ -243,7 +252,7 @@ paths:
     get:
       operationId:  getMyStream
       tags: 
-        - ["user"]
+        - "user"
       summary:  Get the user's stream 
       description:  |
         Return the photo stream of the logged user. 
@@ -257,7 +266,8 @@ paths:
                 type: array
                 minItems: 0
                 maxItems: 15
-                items:  { $ref: '#/components/schemas/Photo'}
+                items:  
+                  $ref: '#/components/schemas/Photo'
         "404":
           description:  "User not found, e.g. user does not exist"
       security:
@@ -270,7 +280,7 @@ paths:
     put:
       operationId:  setMyUserName
       tags:
-        - ["user"]
+        - "user"
       summary:  Set user's username
       description:  |
         Set or update user's username, using the data 
@@ -278,13 +288,16 @@ paths:
       requestBody:
         content:
           application/json: 
-            schema: { $ref: "#/components/schemas/User/properties/username" }
+            schema: 
+              $ref: "#/components/schemas/Username"
+        required: true
       responses:
         "200":
           description:  Username saved successfully
           content:
             application/json:
-              schema: { $ref:"#/components/schemas/User/properties/username"}
+              schema:
+                $ref: "#/components/schemas/User/properties/username"
         "400": 
           description:  bad request
       security:
@@ -297,7 +310,7 @@ paths:
     put:
       operationId:  followUser
       tags:
-        - ["user"]
+        - "user"
       summary:  Follow an user
       description:  "Follow a new user with given uid and update followers list of the new user"
       responses:
@@ -310,7 +323,7 @@ paths:
     delete:
       operationId:  unfollowUser
       tags:
-      - ["user"]
+      - "user"
       summary:  Unfollow an user
       description:  "Unfollow an user with given uid"
       responses:
@@ -328,7 +341,7 @@ paths:
     put:
       operationId:  banUser
       tags:
-        - ["user"]
+        - "user"
       summary:  Ban an user
       description:  "Ban an user with given uid"
       responses:
@@ -342,7 +355,7 @@ paths:
     delete:
       operationId:  unbanUser
       tags: 
-      - ["user"]
+      - "user"
       summary:  Unban an user
       description:  "Remove the ban on an user with given uid"
       responses:
@@ -359,7 +372,7 @@ paths:
     post:
       operationId:  uploadPhoto
       tags: 
-        - ["photo"]
+        - "photo"
       summary:  Upload a photo
       description:  "Upload a photo and associate it with given uid"
       requestBody:
@@ -384,11 +397,12 @@ paths:
         
   /users/{uid}/photos/{photoid}:
     parameters:
-      - $ref: "#/components/parameters/photoid" 
+      - $ref: "#/components/parameters/photoid"
+      - $ref: "#/components/parameters/uid"
     delete:
       operationId:  deletePhoto
       tags: 
-        - ["photo"]
+        - "photo"
       summary:  Delete a photo
       description:  "Remove a photo from user's profile"
       responses:  
@@ -401,13 +415,13 @@ paths:
         
   /users/{uid}/photos/{photoid}/likes/{likeid}:
     parameters:
-      - $ref: "#/components/paremeters/uid" 
-      - $ref: "#/components/paremeters/photoid"
-      - $ref: "#/components/paremeters/likeid"    
+      - $ref: "#/components/parameters/uid" 
+      - $ref: "#/components/parameters/photoid"
+      - $ref: "#/components/parameters/likeid"    
     put:
       operationId:  likePhoto 
       tags: 
-        - ["photo"]
+        - "photo"
       summary:  Like a photo
       description:  "Like a photo with given photoid"
       responses:
@@ -420,7 +434,7 @@ paths:
     delete:
       operationId:  unlikePhoto
       tags: 
-        - ["photo"]
+        - "photo"
       summary:  Unlike a photo
       description:  "Remove a like on a photo with given photoid"
       responses:
@@ -438,7 +452,7 @@ paths:
     post:
       operationId:  commentPhoto
       tags: 
-        - ["photo"]
+        - "photo"
       summary:  "Comment a photo"
       description:  "Add  a comment to a photo with given photoid, author uid and uid of the user adding the comment. "
       requestBody:
@@ -446,27 +460,14 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                commentId:
-                  description:  "Unique comment identifier"
-                  type: integer
-                  example:  78164
-                userId:
-                  description:  "uid of the user adding the commment"
-                  type: integer
-                  example:  98735
-                commenttext:
-                  description:  "Text of the comment"
-                  type: string
-                  pattern: 'ˆ.*?$'
-                  example:  "Nice pic!"
+              $ref: "#/components/schemas/Comment"
       responses:
         "200":
           description:  "Comment added successfully"
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/Photo/properties/comments'}
+              schema: 
+                $ref: '#/components/schemas/Photo/properties/comments'
         "404":
           description:  "Not found, e.g. the photo does not exist"
       security:
@@ -480,7 +481,7 @@ paths:
     delete:
       operationId:  uncommentPhoto
       tags: 
-        - ["photo"]
+        - "photo"
       summary:  Remove a comment on a photo
       description:  "Remove a comment on a photo, only if the action is performed by the author of the photo"
       responses:
