@@ -73,7 +73,7 @@ components:
         name:
           type: string
           example:  "Maria"
-          pattern: 'ˆ.*?$'
+          pattern: "ˆ.*?$"
           minLength: 3
           maxLength: 16
           
@@ -86,7 +86,7 @@ components:
           description:  "Unique user identifier"
           type: integer
           readOnly: true
-          example:  "1234"
+          example:  1234
         username:
           $ref: "#/components/schemas/Username/properties/name"
         following:
@@ -96,7 +96,7 @@ components:
           maxItems:  9999
           items:
             $ref: "#/components/schemas/User/properties/uid"
-          example:  ["54321", "12345"]
+          example:  [54321, 12345]
         followers:
           description:  "List of followers"
           type: array
@@ -104,7 +104,7 @@ components:
           maxItems: 9999
           items:  
             $ref: "#/components/schemas/User/properties/uid"
-          example:  ["6789", "9876"]
+          example:  [6789, 9876]
         banned:
           description:  "List of banned uid"
           type: array
@@ -112,13 +112,14 @@ components:
           maxItems: 9999
           items:
             $ref: "#/components/schemas/User/properties/uid"
-          example:  ["4567", "7654"]
+          example:  [4567, 7654]
         photos:
           description: "List of user's photos in reverse chronological order"
           type: array
           minItems: 0
           maxItems: 9999
-          items:  {$ref: "#/components/schemas/Photo"}
+          items:  
+            $ref: "#/components/schemas/Photo"
           
     Photo:
       title:  Photo
@@ -129,7 +130,7 @@ components:
           description:  "Unique photo identifier"
           type: integer
           readOnly: true
-          example:  "85746"
+          example:  85746
         uid:
           $ref: "#/components/schemas/User/properties/uid"
         likes:
@@ -139,7 +140,7 @@ components:
           maxItems: 9999
           items:
             $ref: "#/components/schemas/User/properties/uid"
-          example:  ["1234","4321","4132"]
+          example:  [1234,4321,4132]
         comments:
           description:  "List of comments of the photo"
           type: array
@@ -175,14 +176,16 @@ components:
         commentid:
           description:  "Unique comment identifier"
           type: integer
-          example:  "78164"
+          example:  78164
         uid:
           $ref: "#/components/schemas/User/properties/uid"
         commentText:
           description:  "Text of the comment"
           type: string
-          pattern: 'ˆ.*?$'
-          example:  "Nice pic!"
+          minLength:  0
+          maxLength:  200
+          pattern: "ˆ.*?$"
+          example:  "Nice pic"
 
   securitySchemes:
     bearerAuth: 
@@ -221,7 +224,7 @@ paths:
                 properties:
                   identifier:
                     type: integer
-                    example: "012345"
+                    example: 012345
 
   /users/{uid}:
     parameters:
@@ -262,7 +265,8 @@ paths:
           description:  "User's stream"
           content:
             application/json:
-              schema: 
+              schema:
+                description:  "Array of photos"
                 type: array
                 minItems: 0
                 maxItems: 15
@@ -316,6 +320,10 @@ paths:
       responses:
         "200":
           description:  "Successfully followed the user"
+          content:
+            application/json: 
+              schema:
+                $ref: "#/components/schemas/User"
         "400":
           description:  "Bad request, e.g. user already followed"
       security:
@@ -329,6 +337,10 @@ paths:
       responses:
         "200":
           description:  "Successfully unfollowed the user"
+          content:
+            application/json: 
+              schema:
+                $ref: "#/components/schemas/User"
         "404":
           description:  "Not found, e.g. user already unfollowed"
       security:
@@ -347,6 +359,10 @@ paths:
       responses:
         "200":
           description:  "Successfully banned the user"
+          content:
+            application/json: 
+              schema:
+                $ref: "#/components/schemas/User"        
         "400":
           description:  "Bad request, e.g. user already banned"
       security:
@@ -361,6 +377,10 @@ paths:
       responses:
         "200":
           description:  "Successfully unbanned an user"
+          content:
+            application/json: 
+              schema:
+                $ref: "#/components/schemas/User"
         "404":
           description:  "Not found, e.g. user already unbanned"
       security:
@@ -380,16 +400,18 @@ paths:
         content:
           image/*:
             schema:
+              description:  "Image in binary string format"
               type: string
               format: binary
               minLength:  0
               maxLength:  9999
       responses:
-        "200":
+        "201":
           description:  "Photo uploaded successfully"
           content:
             application/json:
-              schema: { $ref: "#/components/schemas/Photo"}
+              schema:
+                $ref: "#/components/schemas/Photo"
         "400":
           description:  "Bad request, e.g. image format not supported"
       security:
@@ -408,6 +430,10 @@ paths:
       responses:  
         "200":
           description:  "Photo deleted successfully"
+          content:
+            application/json: 
+              schema:
+                $ref: "#/components/schemas/Photo"
         "404":
           description:  "Photo not found"
       security:
@@ -427,6 +453,10 @@ paths:
       responses:
         "200":
           description:  "Successfully liked the photo"
+          content:
+            application/json: 
+              schema:
+                $ref: "#/components/schemas/Photo"
         "400":
           description:  "Bad request, e.g. photo already liked"
       security:
@@ -440,6 +470,10 @@ paths:
       responses:
         "200":
           description:  "Successfully unliked the photo"
+          content:
+            application/json: 
+              schema:
+                $ref: "#/components/schemas/Photo"
         "404":
           description:  "Not found, e.g. photo removed from the system"
       security:
@@ -462,8 +496,8 @@ paths:
             schema:
               $ref: "#/components/schemas/Comment"
       responses:
-        "200":
-          description:  "Comment added successfully"
+        "201":
+          description:  "Comment created successfully"
           content:
             application/json:
               schema: 
@@ -487,6 +521,10 @@ paths:
       responses:
         "200":
           description:  "Comment successfully deleted"
+          content:
+            application/json: 
+              schema:
+                $ref: "#/components/schemas/Comment"
         "404":
           description:  "Not found, e.g. comment already removed"
       security:

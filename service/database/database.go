@@ -34,12 +34,73 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"time"	//remove when you create db-struct.go
 )
+
+type User struct {
+	UserId int
+	Username string
+	Followers []int
+	Following []int
+	Banned []int
+	Photos []Photo
+}
+
+type Comment struct{
+	UserId int
+	PhotoId int
+	CommentId int
+	CommentText string
+}
+
+type Photo struct {
+	PhotoId int
+	UserId int
+	Likes []int
+	Comments []Comment
+	Date time.Time
+}
 
 // AppDatabase is the high level interface for the DB
 type AppDatabase interface {
-	GetName() (string, error)
-	SetName(name string) error
+	
+	//GetMyStream
+
+	//CreateUser
+	CreateUser(User) (int, error)
+
+	//SetMyUsername
+	SetMyUsername(User, Username) error
+
+	//FollowUser
+	FollowUser(User, User) error
+
+	//UnfollowUser
+	UnfollowUser(User, User) error
+	
+	//BanUser
+	BanUser(User, User) error
+
+	//UnbanUser
+	UnbanUser(User, User) error
+
+	//CreatePhoto
+	CreatePhoto(Photo) (int, error)
+
+	//DeletePhoto
+	DeletePhoto(Photo) error
+
+	//LikePhoto
+	LikePhoto(Photo, User) error
+
+	//UnlikePhoto
+	UnlikePhoto(Photo, User) error
+
+	//CommentPhoto
+	CommentPhoto(Photo, User, Comment) (int, error)
+
+	//UncommentPhoto
+	UncommentPhoto(Photo, User, Comment) error
 
 	Ping() error
 }
@@ -55,14 +116,68 @@ func New(db *sql.DB) (AppDatabase, error) {
 		return nil, errors.New("database is required when building a AppDatabase")
 	}
 
+	//Enable foreign keys for database (https://www.sqlite.org/foreignkeys.html)
+	_, errFK = db.Exec("PRAGMA foreign_keys = ON")
+	if errFK != nil{
+		return nil, fmt.Errorf("error in setting pragmas: %w", errFK)
+	}
+
 	// Check if table exists. If not, the database is empty, and we need to create the structure
 	var tableName string
 	err := db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='example_table';`).Scan(&tableName)
 	if errors.Is(err, sql.ErrNoRows) {
-		sqlStmt := `CREATE TABLE example_table (id INTEGER NOT NULL PRIMARY KEY, name TEXT);`
-		_, err = db.Exec(sqlStmt)
-		if err != nil {
-			return nil, fmt.Errorf("error creating database structure: %w", err)
+
+		wasaDatabase := [7]string{
+			`CREATE TABLE users (
+				userid INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 
+				username VARCHAR(16) NOT NULL
+				);`,
+			//AUTOINCREMENT: each user is guaranteed to have userid never used before by the same table in the same database 
+			//VARCHAR() instead of TEXT because TEXT is better suited for large amount of data 
+			`CREATE TABLE photos (
+				photoid INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+				userid INTEGER NOT NULL, 
+				date DATETIME NOT NULL,
+				FOREIGN KEY(userid) REFERENCES users (userid) ON DELETE CASCADE
+				);`,
+			//ON DELETE CASCADE: each row in the child table that was associated with the deleted parent row is also deleted
+			`CREATE TABLE comments (
+				commentid INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+				userid INTEGER NOT NULL, 
+				photoid INTEGER NOT NULL,
+				commentText TEXT NOT NULL,
+				FOREIGN KEY(photoid) REFERENCES photos (photoid),
+				FOREIGN KEY(userid) REFERENCES photos (userid)
+				);`,
+			`CREATE TABLE followers (
+				followerid INTEGER NOT NULL,
+				followedid INTEGER NOT NULL,
+				PRIMARY KEY (followedid, followerid), 
+				FOREIGN KEY(followerid) REFERENCES users (userid) ON DELETE CASCADE,
+				FOREIGN KEY(followedid) REFERENCES users (userid) ON DELETE CASCADE  
+				);`,
+			//following table is useless because it will contain the same elements of followers table
+			`CREATE TABLE likes (
+				photoid INTEGER NOT NULL,
+				userid INTEGER NOT NULL,
+				PRIMARY KEY (userid, photoid),
+				FOREIGN KEY(userid) REFERENCES users (userid) ON DELETE CASCADE,
+				FOREIGN KEY(photoid) REFERENCES photos (photoid) ON DELETE CASCADE
+				);`,
+			`CREATE TABLE banned (
+				bannedid INTEGER NOT NULL,
+				bannerid INTEGER NOT NULL,
+				PRIMARY KEY (bannerid, bannedid),
+				FOREIGN KEY(bannedid) REFERENCES users (userid) ON DELETE CASCADE,
+				FOREIGN KEY(bannerid) REFERENCES users (userid) ON DELETE CASCADE
+				);`,
+		}
+		for i:=0; i<len(wasaDatabase); i++{
+			sqlStmt := wasaDatabase[i]
+			_, err = db.Exec(sqlStmt)
+			if err != nil {
+				return nil, fmt.Errorf("error creating database structure: %w", err)
+			}
 		}
 	}
 
@@ -74,3 +189,4 @@ func New(db *sql.DB) (AppDatabase, error) {
 func (db *appdbimpl) Ping() error {
 	return db.c.Ping()
 }
+
