@@ -1,7 +1,7 @@
 package database
 
 //	FollowUser adds a follower to user
-func (db *appdbimpl) FollowUser(newFollowed User, newFollower User) error {
+func (db *appdbimpl) FollowUser(newFollowed UserId, newFollower UserId) error {
 	_, err := db.c.Exec("INSERT INTO followers (followedid, followerid) VALUES(?, ?) ", newFollowed.UserId, newFollower.UserId)
 	
 	if err != nil {
@@ -12,7 +12,7 @@ func (db *appdbimpl) FollowUser(newFollowed User, newFollower User) error {
 }
 
 //	UnfollowUser removes a follower from a user
-func (db *appdbimpl) UnfollowUser(oldFollowed User, oldFollower User) error {
+func (db *appdbimpl) UnfollowUser(oldFollowed UserId, oldFollower UserId) error {
 	_, err := db.c.Exec("DELETE FROM followers WHERE (followedid = ? AND followerid = ?) ", oldFollowed.UserId, oldFollower.UserId)
 	
 	if err != nil {

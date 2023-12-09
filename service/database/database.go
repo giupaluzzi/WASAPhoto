@@ -37,52 +37,29 @@ import (
 	"time"	//remove when you create db-struct.go
 )
 
-type User struct {
-	UserId int
-	Username string
-	Followers []int
-	Following []int
-	Banned []int
-	Photos []Photo
-}
-
-type Comment struct{
-	UserId int
-	PhotoId int
-	CommentId int
-	CommentText string
-}
-
-type Photo struct {
-	PhotoId int
-	UserId int
-	Likes []int
-	Comments []Comment
-	Date time.Time
-}
-
 // AppDatabase is the high level interface for the DB
 type AppDatabase interface {
 	
-	//GetMyStream
+	//GetStream
+	GetStream(UserId) ([]Photo, error)
 
 	//CreateUser
-	CreateUser(User) (int, error)
+	CreateUser(Username) (int, error)
 
 	//SetMyUsername
-	SetMyUsername(User, Username) error
+	SetMyUsername(UserId, Username) error
 
 	//FollowUser
-	FollowUser(User, User) error
+	FollowUser(newFollowed UserId, newFollower UserId) error
 
 	//UnfollowUser
-	UnfollowUser(User, User) error
+	UnfollowUser(oldFollowed UserId, oldFollower UserId) error
 	
 	//BanUser
-	BanUser(User, User) error
+	BanUser(newBanned UserId, newBanner UserId) error
 
 	//UnbanUser
-	UnbanUser(User, User) error
+	UnbanUser(oldBanned UserId, oldBanner UserId) error
 
 	//CreatePhoto
 	CreatePhoto(Photo) (int, error)
@@ -91,16 +68,16 @@ type AppDatabase interface {
 	DeletePhoto(Photo) error
 
 	//LikePhoto
-	LikePhoto(Photo, User) error
+	LikePhoto(PhotoId, UserId) error
 
 	//UnlikePhoto
-	UnlikePhoto(Photo, User) error
+	UnlikePhoto(PhotoId, UserId) error
 
 	//CommentPhoto
-	CommentPhoto(Photo, User, Comment) (int, error)
+	CommentPhoto(PhotoId, UserId, CommentText) (int, error)
 
 	//UncommentPhoto
-	UncommentPhoto(Photo, User, Comment) error
+	UncommentPhoto(PhotoId, UserId, CommentId) error
 
 	Ping() error
 }
