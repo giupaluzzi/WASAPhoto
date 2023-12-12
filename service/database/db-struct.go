@@ -5,45 +5,45 @@ import "time"
 //This file contains all the structures needed for the database package
 
 type User struct {
-	UserId int
-	Username string
+	UserId    int64
+	Username  string
 	Followers []int
 	Following []int
-	Banned []int
-	Photos []Photo
+	Banned    []int
+	Photos    []Photo
 }
 
-type Comment struct{
-	UserId int
-	PhotoId int
-	CommentId int
+type Comment struct {
+	UserId      int64
+	PhotoId     int64
+	CommentId   int64
 	CommentText string
 }
 
 type Photo struct {
-	PhotoId int
-	UserId int
-	Likes []int
+	PhotoId  int64
+	UserId   int64
+	Likes    []int
 	Comments []Comment
-	Date time.Time
+	Date     time.Time
 }
 
 type Username struct {
-	Username string 
+	Username string
 }
 
 type UserId struct {
-	UserId int
+	UserId int64
 }
 
 type PhotoId struct {
-	PhotoId int
+	PhotoId int64
 }
 
 type CommentId struct {
-	CommentId int
+	CommentId int64
 }
 
-type CommentText struct{
+type CommentText struct {
 	CommentText string
 }

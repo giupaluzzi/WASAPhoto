@@ -1,26 +1,30 @@
 package database
 
-//	GetStream returns the list of photo of the users followed by an user
-func (db *appdbimpl) GetStream(user UserId) ([]Photo, error){
+// GetStream returns the list of photo of the users followed by an user
+func (db *appdbimpl) GetStream(user UserId) ([]Photo, error) {
 	rows, err := db.c.Query("SELECT * FROM photos WHERE userid IN (SELECT followedid FROM followers WHERE followedid = ?) ORDER BY date DESC", user.UserId)
-	
+
 	if err != nil {
 		return nil, err
 	}
 
-	defer func {
+	defer func() {
 		_ = rows.Close()
 	}()
 
 	var stream []Photo
-	
-	for r := range(rows) {
+
+	for rows.Next() {
 		var p Photo
-		err = r.Scan(&p.PhotoId, &p.UserId, &p.Date)
+		err = rows.Scan(&p.PhotoId, &p.UserId, &p.Date)
 		if err != nil {
 			return nil, err
 		}
-		stream.append(stream, p)
+		stream = append(stream, p)
+	}
+
+	if rows.Err() != nil {
+		return nil, err
 	}
 
 	return stream, nil

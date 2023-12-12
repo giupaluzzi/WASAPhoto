@@ -34,12 +34,11 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"time"	//remove when you create db-struct.go
 )
 
 // AppDatabase is the high level interface for the DB
 type AppDatabase interface {
-	
+
 	//GetStream
 	GetStream(UserId) ([]Photo, error)
 
@@ -54,7 +53,7 @@ type AppDatabase interface {
 
 	//UnfollowUser
 	UnfollowUser(oldFollowed UserId, oldFollower UserId) error
-	
+
 	//BanUser
 	BanUser(newBanned UserId, newBanner UserId) error
 
@@ -79,6 +78,15 @@ type AppDatabase interface {
 	//UncommentPhoto
 	UncommentPhoto(PhotoId, UserId, CommentId) error
 
+	//Other methods
+
+	GetFollowing(UserId) ([]UserId, error)
+	GetFollowers(UserId) ([]UserId, error)
+	BanCheck(UserId, UserId) (bool, error)
+	GetPhotoList(UserId) ([]Photo, error)
+	GetPhotoComments(PhotoId) ([]Comment, error)
+	GetUsername(UserId) (string, error)
+
 	Ping() error
 }
 
@@ -94,14 +102,14 @@ func New(db *sql.DB) (AppDatabase, error) {
 	}
 
 	//Enable foreign keys for database (https://www.sqlite.org/foreignkeys.html)
-	_, errFK = db.Exec("PRAGMA foreign_keys = ON")
-	if errFK != nil{
+	_, errFK := db.Exec("PRAGMA foreign_keys = ON")
+	if errFK != nil {
 		return nil, fmt.Errorf("error in setting pragmas: %w", errFK)
 	}
 
 	// Check if table exists. If not, the database is empty, and we need to create the structure
 	var tableName string
-	err := db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='example_table';`).Scan(&tableName)
+	err := db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='users';`).Scan(&tableName)
 	if errors.Is(err, sql.ErrNoRows) {
 
 		wasaDatabase := [7]string{
@@ -109,8 +117,8 @@ func New(db *sql.DB) (AppDatabase, error) {
 				userid INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 
 				username VARCHAR(16) NOT NULL
 				);`,
-			//AUTOINCREMENT: each user is guaranteed to have userid never used before by the same table in the same database 
-			//VARCHAR() instead of TEXT because TEXT is better suited for large amount of data 
+			//AUTOINCREMENT: each user is guaranteed to have userid never used before by the same table in the same database
+			//VARCHAR() instead of TEXT because TEXT is better suited for large amount of data
 			`CREATE TABLE photos (
 				photoid INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 				userid INTEGER NOT NULL, 
@@ -149,7 +157,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 				FOREIGN KEY(bannerid) REFERENCES users (userid) ON DELETE CASCADE
 				);`,
 		}
-		for i:=0; i<len(wasaDatabase); i++{
+		for i := 0; i < len(wasaDatabase); i++ {
 			sqlStmt := wasaDatabase[i]
 			_, err = db.Exec(sqlStmt)
 			if err != nil {
@@ -166,4 +174,3 @@ func New(db *sql.DB) (AppDatabase, error) {
 func (db *appdbimpl) Ping() error {
 	return db.c.Ping()
 }
-
