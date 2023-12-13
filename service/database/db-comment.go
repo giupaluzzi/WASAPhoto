@@ -1,14 +1,14 @@
 package database
 
 // CommentPhoto adds a comment of an user on a photo
-func (db *appdbimpl) CommentPhoto(photo PhotoId, user UserId, comment CommentText) (int64, error) {
+func (db *appdbimpl) CommentPhoto(photo PhotoId, user UserId, comment CommentText) (int, error) {
 	id, err := db.c.Exec("INSERT INTO comments (userid, photoid, commentText) VALUES(?, ?, ?) ", user.UserId, photo.PhotoId, comment.CommentText)
 
 	if err != nil {
 		return -1, err
 	}
 	commentid, err := id.LastInsertId()
-	return commentid, err
+	return int(commentid), err
 }
 
 // UncommentPhoto removes a comment of an user from a photo

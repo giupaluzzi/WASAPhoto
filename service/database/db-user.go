@@ -1,7 +1,7 @@
 package database
 
 // CreateUser creates an user
-func (db *appdbimpl) CreateUser(user Username) (int64, error) {
+func (db *appdbimpl) CreateUser(user Username) (int, error) {
 	id, err := db.c.Exec("INSERT INTO users (username) VALUES(?) ", user.Username)
 
 	if err != nil {
@@ -9,5 +9,5 @@ func (db *appdbimpl) CreateUser(user Username) (int64, error) {
 	}
 
 	userid, err := id.LastInsertId()
-	return userid, err
+	return int(userid), err
 }

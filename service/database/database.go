@@ -114,20 +114,20 @@ func New(db *sql.DB) (AppDatabase, error) {
 
 		wasaDatabase := [7]string{
 			`CREATE TABLE users (
-				userid INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 
+				userid INTEGER PRIMARY KEY, 
 				username VARCHAR(16) NOT NULL
 				);`,
 			//AUTOINCREMENT: each user is guaranteed to have userid never used before by the same table in the same database
 			//VARCHAR() instead of TEXT because TEXT is better suited for large amount of data
 			`CREATE TABLE photos (
-				photoid INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+				photoid INTEGER PRIMARY KEY,
 				userid INTEGER NOT NULL, 
 				date DATETIME NOT NULL,
 				FOREIGN KEY(userid) REFERENCES users (userid) ON DELETE CASCADE
 				);`,
 			//ON DELETE CASCADE: each row in the child table that was associated with the deleted parent row is also deleted
 			`CREATE TABLE comments (
-				commentid INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+				commentid INTEGER PRIMARY KEY,
 				userid INTEGER NOT NULL, 
 				photoid INTEGER NOT NULL,
 				commentText TEXT NOT NULL,

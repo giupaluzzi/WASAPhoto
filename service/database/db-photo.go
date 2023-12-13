@@ -1,7 +1,7 @@
 package database
 
 // CreatePhoto creates a photo
-func (db *appdbimpl) CreatePhoto(photo Photo) (int64, error) {
+func (db *appdbimpl) CreatePhoto(photo Photo) (int, error) {
 	id, err := db.c.Exec("INSERT INTO photos (userid, date) VALUES(?, ?) ", photo.UserId, photo.Date)
 
 	if err != nil {
@@ -9,7 +9,7 @@ func (db *appdbimpl) CreatePhoto(photo Photo) (int64, error) {
 	}
 
 	photoid, err := id.LastInsertId()
-	return photoid, err
+	return int(photoid), err
 }
 
 // DeletePhoto removes a photo
