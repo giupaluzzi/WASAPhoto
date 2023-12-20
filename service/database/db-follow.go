@@ -1,8 +1,8 @@
 package database
 
 // FollowUser adds a follower to user
-func (db *appdbimpl) FollowUser(newFollowed UserId, newFollower UserId) error {
-	_, err := db.c.Exec("INSERT INTO followers (followedid, followerid) VALUES(?, ?) ", newFollowed.UserId, newFollower.UserId)
+func (db *appdbimpl) FollowUser(followed string, follower string) error {
+	_, err := db.c.Exec("INSERT INTO followers (followedid, followerid) VALUES(?, ?) ", followed, follower)
 
 	if err != nil {
 		return err
@@ -12,8 +12,8 @@ func (db *appdbimpl) FollowUser(newFollowed UserId, newFollower UserId) error {
 }
 
 // UnfollowUser removes a follower from a user
-func (db *appdbimpl) UnfollowUser(oldFollowed UserId, oldFollower UserId) error {
-	_, err := db.c.Exec("DELETE FROM followers WHERE (followedid = ? AND followerid = ?) ", oldFollowed.UserId, oldFollower.UserId)
+func (db *appdbimpl) UnfollowUser(exFollowed string, exFollower string) error {
+	_, err := db.c.Exec("DELETE FROM followers WHERE (followedid = ? AND followerid = ?) ", exFollowed, exFollower)
 
 	if err != nil {
 		return err
@@ -23,8 +23,8 @@ func (db *appdbimpl) UnfollowUser(oldFollowed UserId, oldFollower UserId) error 
 }
 
 // GetFollowing returns the list of users followed by an user
-func (db *appdbimpl) GetFollowing(user UserId) ([]UserId, error) {
-	rows, err := db.c.Query("SELECT followedid FROM followers WHERE followerid = ?", user.UserId)
+func (db *appdbimpl) GetFollowing(userid string) ([]string, error) {
+	rows, err := db.c.Query("SELECT followedid FROM followers WHERE followerid = ?", userid)
 
 	if err != nil {
 		return nil, err
@@ -34,11 +34,11 @@ func (db *appdbimpl) GetFollowing(user UserId) ([]UserId, error) {
 		_ = rows.Close()
 	}()
 
-	var following []UserId
+	var following []string
 
 	for rows.Next() {
-		var p UserId
-		err = rows.Scan(&p.UserId)
+		var p string
+		err = rows.Scan(&p)
 		if err != nil {
 			return nil, err
 		}
@@ -53,8 +53,8 @@ func (db *appdbimpl) GetFollowing(user UserId) ([]UserId, error) {
 }
 
 // Getfollowers returns the list an user's followers
-func (db *appdbimpl) GetFollowers(user UserId) ([]UserId, error) {
-	rows, err := db.c.Query("SELECT followerid FROM followers WHERE followedid = ?", user.UserId)
+func (db *appdbimpl) GetFollowers(userid string) ([]string, error) {
+	rows, err := db.c.Query("SELECT followerid FROM followers WHERE followedid = ?", userid)
 
 	if err != nil {
 		return nil, err
@@ -64,11 +64,11 @@ func (db *appdbimpl) GetFollowers(user UserId) ([]UserId, error) {
 		_ = rows.Close()
 	}()
 
-	var followers []UserId
+	var followers []string
 
 	for rows.Next() {
-		var p UserId
-		err = rows.Scan(&p.UserId)
+		var p string
+		err = rows.Scan(&p)
 		if err != nil {
 			return nil, err
 		}

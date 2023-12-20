@@ -6,49 +6,31 @@ import (
 )
 
 type User struct {
-	UserId    int64             `json:"userid"`
-	Username  string            `json:"username"`
-	Following []database.UserId `json:"following"`
-	Followers []database.UserId `json:"followers"`
-	Banned    []database.UserId `json:"banned"`
-	Photos    []database.Photo  `json:"photos"`
-}
-
-type UserId struct {
-	UserId int64 `json:"userid"`
+	UserId    string           `json:"userid"`
+	Following []string         `json:"following"`
+	Followers []string         `json:"followers"`
+	Banned    []string         `json:"banned"`
+	Photos    []database.Photo `json:"photos"`
 }
 
 type Profile struct {
-	UserId    int64             `json:"userid"`
-	Username  string            `json:"username"`
-	Following []database.UserId `json:"following"`
-	Followers []database.UserId `json:"followers"`
-	Photos    []database.Photo  `json:"photos"`
-}
-
-type Username struct {
-	Username string `json:"username"`
+	UserId    string           `json:"userid"`
+	Following []string         `json:"following"`
+	Followers []string         `json:"followers"`
+	Photos    []database.Photo `json:"photos"`
 }
 
 type Photo struct {
-	PhotoId  int64              `json:"photoid"`
-	UserId   int64              `json:"userid"`
-	Likes    []database.UserId  `json:"likes"`
+	PhotoId  int                `json:"photoid"`
+	UserId   string             `json:"userid"`
+	Likes    []int              `json:"likes"`
 	Comments []database.Comment `json:"comments"`
 	Date     time.Time          `json:"date"`
 }
 
-type PhotoId struct {
-	PhotoId int64 `json:"photoid"`
-}
-
 type Comment struct {
-	CommentId   int64  `json:"commentid"`
-	PhotoId     int64  `json:"photoid"`
-	UserId      int64  `json:"userid"`
+	CommentId   int    `json:"commentid"`
+	PhotoId     int    `json:"photoid"`
+	UserId      string `json:"userid"`
 	CommentText string `json:"commentText"`
-}
-
-type CommentId struct {
-	CommentId int64 `json:"commentid"`
 }

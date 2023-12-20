@@ -5,16 +5,18 @@ import (
 	"net/http"
 )
 
-// Return the user's photos in reverse chronological order and the user's followers and following
-func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+// Unfollow a followed user
+func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("content-type", "application/json")
-	userId := extractToken(r.Header.Get("Authorization"))
 
-	_, err := rt.db.GetStream(userId)
+	userId := extractToken(r.Header.Get("Authorization"))
+	userToUnfollow := ps.ByName("followinguid")
+
+	err := rt.db.UnfollowUser(userToUnfollow, userId)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
 
+	w.WriteHeader(http.StatusNoContent)
 }

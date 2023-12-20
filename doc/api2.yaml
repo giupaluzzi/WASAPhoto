@@ -9,14 +9,14 @@ tags:
   - name: "login"
     description:  "Login operations"
   - name: "user"
-    description: "Users operations"
+    description: "Users operations" 
   - name: "photo"
     description:  "Photos operations"
-
+      
 components:
-
-  parameters:
-
+  
+  parameters: 
+  
     userid:
       name: userid
       in: path
@@ -32,7 +32,7 @@ components:
       description:  "Unique user identifier of the user to be followed or unfollowed"
       schema:
         $ref: "#/components/schemas/User/properties/userid"
-
+  
     banneduid:
       name: banneduid
       in: path
@@ -40,13 +40,13 @@ components:
       description:  "Unique user identifier of the user to be banned or unbanned"
       schema:
         $ref: "#/components/schemas/User/properties/userid"
-
+  
     photoid:
       name: photoid
       in: path
       required: true
       description:  "Unique photo identifier of the photo to be deleted"
-      schema:
+      schema: 
         $ref: "#/components/schemas/Photo/properties/photoid"
 
     likeid:
@@ -56,7 +56,7 @@ components:
       description:  "Unique user identifier of the user who liked or unliked the photo"
       schema:
         $ref: "#/components/schemas/User/properties/userid"
-
+  
     commentid:
       name: commentid
       in: path
@@ -67,14 +67,17 @@ components:
 
   schemas:
     Username:
-      title:  Username
-      description:  "Unique user identifier"
-      type: string
-      example: "Maria"
-      pattern: "^.*?$"
-      minLength: 3
-      maxLength: 16
-
+      description:  "This object represent an user's username"
+      type: object
+      properties:
+        name:
+          description: "User's username"
+          type: string
+          example:  "Maria"
+          pattern: "^.*?$"
+          minLength: 3
+          maxLength: 16
+          
     User:
       title:  User
       description:  "This object represent a single user"
@@ -82,11 +85,11 @@ components:
       properties:
         userid:
           description:  "Unique user identifier"
-          type: string
-          example:  "Maria"
-          pattern: "^.*?$"
-          minLength: 3
-          maxLength: 16
+          type: integer
+          readOnly: true
+          example:  1234
+        username:
+          $ref: "#/components/schemas/Username/properties/name"
         following:
           description:  "List of followed userid"
           type: array
@@ -94,15 +97,15 @@ components:
           maxItems:  9999
           items:
             $ref: "#/components/schemas/User/properties/userid"
-          example:  ["XXMarioXX", "ReneFerretti"]
+          example:  [54321, 12345]
         followers:
           description:  "List of followers"
           type: array
           minItems: 0
           maxItems: 9999
-          items:
+          items:  
             $ref: "#/components/schemas/User/properties/userid"
-          example:  ["Glaugo", "BiascicaDaje"]
+          example:  [6789, 9876]
         banned:
           description:  "List of banned userid"
           type: array
@@ -110,21 +113,21 @@ components:
           maxItems: 9999
           items:
             $ref: "#/components/schemas/User/properties/userid"
-          example:  ["occhidelcuore1", "Stanis"]
+          example:  [4567, 7654]
         photos:
           description: "List of user's photos in reverse chronological order"
           type: array
           minItems: 0
           maxItems: 9999
-          items:
+          items:  
             $ref: "#/components/schemas/Photo"
-
+          
     Photo:
       title:  Photo
       description:  "This object represent a single photo"
       type: object
       properties:
-        photoid:
+        photoid:  
           description:  "Unique photo identifier"
           type: integer
           readOnly: true
@@ -138,7 +141,7 @@ components:
           maxItems: 9999
           items:
             $ref: "#/components/schemas/User/properties/userid"
-          example:  ["Marcolino1","Claudione"]
+          example:  [1234,4321,4132]
         comments:
           description:  "List of comments of the photo"
           type: array
@@ -192,9 +195,10 @@ components:
           example:  "Nice pic"
 
   securitySchemes:
-    bearerAuth:
+    bearerAuth: 
       type: http
       scheme: bearer
+      bearerFormat: JWT
 
 paths:
   /session:
@@ -216,7 +220,7 @@ paths:
               type: object
               properties:
                 name:
-                  $ref: '#/components/schemas/User/properties/userid'
+                  $ref: '#/components/schemas/Username/properties/name'
         required: true
       responses:
         '201':
@@ -227,16 +231,16 @@ paths:
                 description:  "Unique user identifier"
                 type: object
                 properties:
-                  userid:
-                    type: string
-                    example: "Marietto1"
+                  identifier:
+                    type: integer
+                    example: 012345
 
   /users/{userid}:
     parameters:
       - $ref: "#/components/parameters/userid"
     get:
       operationId:  getUserProfile
-      tags:
+      tags: 
         - "user"
       summary:  Get user profile
       description:  |
@@ -247,21 +251,21 @@ paths:
           description:  "User's profile"
           content:
             application/json:
-              schema:
+              schema: 
                 $ref: '#/components/schemas/User'
         "404":
           description:  "User not found, e.g. the userid does not exist "
       security:
         - bearerAuth: []
-
+        
   /users/{userid}/stream:
     parameters:
       - $ref: "#/components/parameters/userid"
     get:
       operationId:  getMyStream
-      tags:
+      tags: 
         - "user"
-      summary:  Get the user's stream
+      summary:  Get the user's stream 
       description:  |
         Return the photo stream of the logged user. 
         It includes photos of the followed users in reverse chronological order
@@ -275,17 +279,17 @@ paths:
                 type: array
                 minItems: 0
                 maxItems: 15
-                items:
+                items:  
                   $ref: '#/components/schemas/Photo'
         "404":
           description:  "User not found, e.g. user does not exist"
       security:
         - bearerAuth: []
-
+        
   /users/{userid}/username:
     parameters:
       - $ref: "#/components/parameters/userid"
-
+        
     put:
       operationId:  setMyUserName
       tags:
@@ -296,8 +300,8 @@ paths:
         in the body of the request
       requestBody:
         content:
-          application/json:
-            schema:
+          application/json: 
+            schema: 
               $ref: "#/components/schemas/Username"
         required: true
       responses:
@@ -306,12 +310,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User/properties/userid"
-        "400":
+                $ref: "#/components/schemas/User/properties/username"
+        "400": 
           description:  bad request
       security:
         - bearerAuth: []
-
+        
   /users/{userid}/following/{followinguid}:
     parameters:
       - $ref: "#/components/parameters/userid"
@@ -326,7 +330,7 @@ paths:
         "200":
           description:  "Successfully followed the user"
           content:
-            application/json:
+            application/json: 
               schema:
                 $ref: "#/components/schemas/User"
         "400":
@@ -336,21 +340,21 @@ paths:
     delete:
       operationId:  unfollowUser
       tags:
-        - "user"
+      - "user"
       summary:  Unfollow an user
       description:  "Unfollow an user with given userid"
       responses:
         "200":
           description:  "Successfully unfollowed the user"
           content:
-            application/json:
+            application/json: 
               schema:
                 $ref: "#/components/schemas/User"
         "404":
           description:  "Not found, e.g. user already unfollowed"
       security:
         - bearerAuth: []
-
+        
   /users/{userid}/banned/{banneduid}:
     parameters:
       - $ref: "#/components/parameters/userid"
@@ -365,38 +369,38 @@ paths:
         "200":
           description:  "Successfully banned the user"
           content:
-            application/json:
+            application/json: 
               schema:
-                $ref: "#/components/schemas/User"
+                $ref: "#/components/schemas/User"        
         "400":
           description:  "Bad request, e.g. user already banned"
       security:
         - bearerAuth: []
-
+        
     delete:
       operationId:  unbanUser
-      tags:
-        - "user"
+      tags: 
+      - "user"
       summary:  Unban an user
       description:  "Remove the ban on an user with given userid"
       responses:
         "200":
           description:  "Successfully unbanned an user"
           content:
-            application/json:
+            application/json: 
               schema:
                 $ref: "#/components/schemas/User"
         "404":
           description:  "Not found, e.g. user already unbanned"
       security:
         - bearerAuth: []
-
+        
   /users/{userid}/photos/:
     parameters:
       - $ref: "#/components/parameters/userid"
     post:
       operationId:  uploadPhoto
-      tags:
+      tags: 
         - "photo"
       summary:  Upload a photo
       description:  "Upload a photo and associate it with given userid"
@@ -417,37 +421,37 @@ paths:
           description:  "Bad request, e.g. image format not supported"
       security:
         - bearerAuth: []
-
+        
   /users/{userid}/photos/{photoid}:
     parameters:
       - $ref: "#/components/parameters/photoid"
       - $ref: "#/components/parameters/userid"
     delete:
       operationId:  deletePhoto
-      tags:
+      tags: 
         - "photo"
       summary:  Delete a photo
       description:  "Remove a photo from user's profile"
-      responses:
+      responses:  
         "200":
           description:  "Photo deleted successfully"
           content:
-            application/json:
+            application/json: 
               schema:
                 $ref: "#/components/schemas/Photo"
         "404":
           description:  "Photo not found"
       security:
         - bearerAuth: []
-
+        
   /users/{userid}/photos/{photoid}/likes/{likeid}:
     parameters:
       - $ref: "#/components/parameters/userid"
       - $ref: "#/components/parameters/photoid"
-      - $ref: "#/components/parameters/likeid"
+      - $ref: "#/components/parameters/likeid"    
     put:
-      operationId:  likePhoto
-      tags:
+      operationId:  likePhoto 
+      tags: 
         - "photo"
       summary:  Like a photo
       description:  "Like a photo with given photoid"
@@ -455,7 +459,7 @@ paths:
         "200":
           description:  "Successfully liked the photo"
           content:
-            application/json:
+            application/json: 
               schema:
                 $ref: "#/components/schemas/Photo"
         "400":
@@ -464,7 +468,7 @@ paths:
         - bearerAuth: []
     delete:
       operationId:  unlikePhoto
-      tags:
+      tags: 
         - "photo"
       summary:  Unlike a photo
       description:  "Remove a like on a photo with given photoid"
@@ -472,21 +476,21 @@ paths:
         "200":
           description:  "Successfully unliked the photo"
           content:
-            application/json:
+            application/json: 
               schema:
                 $ref: "#/components/schemas/Photo"
         "404":
           description:  "Not found, e.g. photo removed from the system"
       security:
         - bearerAuth: []
-
+        
   /users/{userid}/photos/{photoid}/comments/:
     parameters:
       - $ref: "#/components/parameters/userid"
       - $ref: "#/components/parameters/photoid"
     post:
       operationId:  commentPhoto
-      tags:
+      tags: 
         - "photo"
       summary:  "Comment a photo"
       description:  "Add  a comment to a photo with given photoid, author userid and userid of the user adding the comment. "
@@ -501,13 +505,13 @@ paths:
           description:  "Comment created successfully"
           content:
             application/json:
-              schema:
+              schema: 
                 $ref: '#/components/schemas/Photo/properties/comments'
         "404":
           description:  "Not found, e.g. the photo does not exist"
       security:
         - bearerAuth: []
-
+        
   /users/{userid}/photos/{photoid}/comments/{commentid}:
     parameters:
       - $ref: "#/components/parameters/userid"
@@ -515,7 +519,7 @@ paths:
       - $ref: "#/components/parameters/commentid"
     delete:
       operationId:  uncommentPhoto
-      tags:
+      tags: 
         - "photo"
       summary:  Remove a comment on a photo
       description:  "Remove a comment on a photo, only if the action is performed by the author of the photo"
@@ -523,7 +527,7 @@ paths:
         "200":
           description:  "Comment successfully deleted"
           content:
-            application/json:
+            application/json: 
               schema:
                 $ref: "#/components/schemas/Comment"
         "404":

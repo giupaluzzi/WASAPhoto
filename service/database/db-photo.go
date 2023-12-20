@@ -13,8 +13,8 @@ func (db *appdbimpl) CreatePhoto(photo Photo) (int, error) {
 }
 
 // DeletePhoto removes a photo
-func (db *appdbimpl) DeletePhoto(photo Photo) error {
-	_, err := db.c.Exec("DELETE FROM photos WHERE (photoid = ? AND userid = ? AND date = ?) ", photo.PhotoId, photo.UserId, photo.Date)
+func (db *appdbimpl) DeletePhoto(photoid int, userid string) error {
+	_, err := db.c.Exec("DELETE FROM photos WHERE (photoid = ? AND userid = ?) ", photoid, userid)
 
 	if err != nil {
 		return err
@@ -24,8 +24,8 @@ func (db *appdbimpl) DeletePhoto(photo Photo) error {
 }
 
 // GetPhotoList returns the list of photos of an user
-func (db *appdbimpl) GetPhotoList(user UserId) ([]Photo, error) {
-	rows, err := db.c.Query("SELECT * FROM photos WHERE userid = ? ORDER BY date DESC", user.UserId)
+func (db *appdbimpl) GetPhotoList(userid string) ([]Photo, error) {
+	rows, err := db.c.Query("SELECT * FROM photos WHERE userid = ? ORDER BY date DESC", userid)
 
 	if err != nil {
 		return nil, err

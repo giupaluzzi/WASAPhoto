@@ -5,16 +5,18 @@ import (
 	"net/http"
 )
 
-// Return the user's photos in reverse chronological order and the user's followers and following
-func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+// Unban an user
+func (rt *_router) unbanUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("content-type", "application/json")
-	userId := extractToken(r.Header.Get("Authorization"))
 
-	_, err := rt.db.GetStream(userId)
+	userId := extractToken(r.Header.Get("Authorization"))
+	bannedId := ps.ByName("banneduid")
+
+	err := rt.db.UnbanUser(bannedId, userId)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
 
+	w.WriteHeader(http.StatusNoContent)
 }

@@ -38,54 +38,40 @@ import (
 
 // AppDatabase is the high level interface for the DB
 type AppDatabase interface {
+	GetStream(userid string) ([]Photo, error)
 
-	//GetStream
-	GetStream(UserId) ([]Photo, error)
+	CreateUser(userid string) error
 
-	//CreateUser
-	CreateUser(Username) (int, error)
+	SetMyUsername(userid string, newUserid string) error
 
-	//SetMyUsername
-	SetMyUsername(UserId, Username) error
+	FollowUser(followed string, follower string) error
 
-	//FollowUser
-	FollowUser(newFollowed UserId, newFollower UserId) error
+	UnfollowUser(exFollowed string, exFollower string) error
 
-	//UnfollowUser
-	UnfollowUser(oldFollowed UserId, oldFollower UserId) error
+	BanUser(banned string, banner string) error
 
-	//BanUser
-	BanUser(newBanned UserId, newBanner UserId) error
+	UnbanUser(exBanned string, exBanner string) error
 
-	//UnbanUser
-	UnbanUser(oldBanned UserId, oldBanner UserId) error
-
-	//CreatePhoto
 	CreatePhoto(Photo) (int, error)
 
-	//DeletePhoto
-	DeletePhoto(Photo) error
+	DeletePhoto(photoid int, userid string) error
 
-	//LikePhoto
-	LikePhoto(PhotoId, UserId) error
+	LikePhoto(photoid int, userid string) error
 
-	//UnlikePhoto
-	UnlikePhoto(PhotoId, UserId) error
+	UnlikePhoto(photoid int, userid string) error
 
-	//CommentPhoto
-	CommentPhoto(PhotoId, UserId, CommentText) (int, error)
+	CommentPhoto(photoid int, userid string, commentText string) (int, error)
 
-	//UncommentPhoto
-	UncommentPhoto(PhotoId, UserId, CommentId) error
+	UncommentPhoto(photoid int, userid string, commentid int) error
 
 	//Other methods
 
-	GetFollowing(UserId) ([]UserId, error)
-	GetFollowers(UserId) ([]UserId, error)
-	BanCheck(UserId, UserId) (bool, error)
-	GetPhotoList(UserId) ([]Photo, error)
-	GetPhotoComments(PhotoId) ([]Comment, error)
-	GetUsername(UserId) (string, error)
+	GetFollowing(userid string) ([]string, error)
+	GetFollowers(userid string) ([]string, error)
+	BanCheck(banned string, banner string) (bool, error)
+	GetPhotoList(userid string) ([]Photo, error)
+	GetPhotoComments(photoid int) ([]Comment, error)
+	CheckUser(userid string) (bool, error)
 
 	Ping() error
 }
@@ -101,7 +87,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 		return nil, errors.New("database is required when building a AppDatabase")
 	}
 
-	//Enable foreign keys for database (https://www.sqlite.org/foreignkeys.html)
+	//Enable foreign keys for database
 	_, errFK := db.Exec("PRAGMA foreign_keys = ON")
 	if errFK != nil {
 		return nil, fmt.Errorf("error in setting pragmas: %w", errFK)
@@ -114,44 +100,39 @@ func New(db *sql.DB) (AppDatabase, error) {
 
 		wasaDatabase := [7]string{
 			`CREATE TABLE users (
-				userid INTEGER PRIMARY KEY, 
-				username VARCHAR(16) NOT NULL
+				userid VARCHAR(16) PRIMARY KEY 
 				);`,
-			//AUTOINCREMENT: each user is guaranteed to have userid never used before by the same table in the same database
-			//VARCHAR() instead of TEXT because TEXT is better suited for large amount of data
 			`CREATE TABLE photos (
 				photoid INTEGER PRIMARY KEY,
-				userid INTEGER NOT NULL, 
+				userid VARCHAR(16) NOT NULL, 
 				date DATETIME NOT NULL,
 				FOREIGN KEY(userid) REFERENCES users (userid) ON DELETE CASCADE
 				);`,
-			//ON DELETE CASCADE: each row in the child table that was associated with the deleted parent row is also deleted
 			`CREATE TABLE comments (
 				commentid INTEGER PRIMARY KEY,
-				userid INTEGER NOT NULL, 
+				userid VARCHAR(16) NOT NULL, 
 				photoid INTEGER NOT NULL,
 				commentText TEXT NOT NULL,
 				FOREIGN KEY(photoid) REFERENCES photos (photoid),
 				FOREIGN KEY(userid) REFERENCES photos (userid)
 				);`,
 			`CREATE TABLE followers (
-				followerid INTEGER NOT NULL,
-				followedid INTEGER NOT NULL,
+				followerid VARCHAR(16) NOT NULL,
+				followedid VARCHAR(16) NOT NULL,
 				PRIMARY KEY (followedid, followerid), 
 				FOREIGN KEY(followerid) REFERENCES users (userid) ON DELETE CASCADE,
 				FOREIGN KEY(followedid) REFERENCES users (userid) ON DELETE CASCADE  
 				);`,
-			//following table is useless because it will contain the same elements of followers table
 			`CREATE TABLE likes (
 				photoid INTEGER NOT NULL,
-				userid INTEGER NOT NULL,
+				userid VARCHAR(16) NOT NULL,
 				PRIMARY KEY (userid, photoid),
 				FOREIGN KEY(userid) REFERENCES users (userid) ON DELETE CASCADE,
 				FOREIGN KEY(photoid) REFERENCES photos (photoid) ON DELETE CASCADE
 				);`,
 			`CREATE TABLE banned (
-				bannedid INTEGER NOT NULL,
-				bannerid INTEGER NOT NULL,
+				bannedid VARCHAR(16) NOT NULL,
+				bannerid VARCHAR(16) NOT NULL,
 				PRIMARY KEY (bannerid, bannedid),
 				FOREIGN KEY(bannedid) REFERENCES users (userid) ON DELETE CASCADE,
 				FOREIGN KEY(bannerid) REFERENCES users (userid) ON DELETE CASCADE

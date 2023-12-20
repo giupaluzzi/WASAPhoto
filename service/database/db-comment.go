@@ -1,8 +1,8 @@
 package database
 
 // CommentPhoto adds a comment of an user on a photo
-func (db *appdbimpl) CommentPhoto(photo PhotoId, user UserId, comment CommentText) (int, error) {
-	id, err := db.c.Exec("INSERT INTO comments (userid, photoid, commentText) VALUES(?, ?, ?) ", user.UserId, photo.PhotoId, comment.CommentText)
+func (db *appdbimpl) CommentPhoto(photoid int, userid string, commentText string) (int, error) {
+	id, err := db.c.Exec("INSERT INTO comments (userid, photoid, commentText) VALUES(?, ?, ?) ", userid, photoid, commentText)
 
 	if err != nil {
 		return -1, err
@@ -12,8 +12,8 @@ func (db *appdbimpl) CommentPhoto(photo PhotoId, user UserId, comment CommentTex
 }
 
 // UncommentPhoto removes a comment of an user from a photo
-func (db *appdbimpl) UncommentPhoto(photo PhotoId, user UserId, comment CommentId) error {
-	_, err := db.c.Exec("DELETE FROM comments WHERE (commentid = ? AND userid = ? AND photoid = ?) ", comment.CommentId, user.UserId, photo.PhotoId)
+func (db *appdbimpl) UncommentPhoto(photoid int, userid string, commentid int) error {
+	_, err := db.c.Exec("DELETE FROM comments WHERE (commentid = ? AND userid = ? AND photoid = ?) ", commentid, userid, photoid)
 
 	if err != nil {
 		return err
@@ -23,8 +23,8 @@ func (db *appdbimpl) UncommentPhoto(photo PhotoId, user UserId, comment CommentI
 }
 
 // GetPhotoComments returns the list of comments of a photo
-func (db *appdbimpl) GetPhotoComments(photo PhotoId) ([]Comment, error) {
-	rows, err := db.c.Query("SELECT * FROM comments WHERE photoid = ?", photo.PhotoId)
+func (db *appdbimpl) GetPhotoComments(photoid int) ([]Comment, error) {
+	rows, err := db.c.Query("SELECT * FROM comments WHERE photoid = ?", photoid)
 
 	if err != nil {
 		return nil, err

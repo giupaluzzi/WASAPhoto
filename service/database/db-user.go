@@ -1,13 +1,26 @@
 package database
 
 // CreateUser creates an user
-func (db *appdbimpl) CreateUser(user Username) (int, error) {
-	id, err := db.c.Exec("INSERT INTO users (username) VALUES(?) ", user.Username)
+func (db *appdbimpl) CreateUser(userid string) error {
+	_, err := db.c.Exec("INSERT INTO users (username) VALUES(?) ", userid)
 
 	if err != nil {
-		return -1, err
+		return err
 	}
 
-	userid, err := id.LastInsertId()
-	return int(userid), err
+	return nil
+}
+
+func (db *appdbimpl) CheckUser(userid string) (bool, error) {
+	rows, err := db.c.Query("SELECT * FROM users WHERE userid=?", userid)
+
+	if err != nil {
+		return false, err
+	}
+
+	if rows.Next() == true {
+		return true, nil
+	}
+
+	return false, nil
 }

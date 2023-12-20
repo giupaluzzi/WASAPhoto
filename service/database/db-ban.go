@@ -1,8 +1,8 @@
 package database
 
 // BanUser adds an user to another user's banned list
-func (db *appdbimpl) BanUser(newBanned UserId, newBanner UserId) error {
-	_, err := db.c.Exec("INSERT INTO banned (banner, banned) VALUES(?, ?) ", newBanner.UserId, newBanned.UserId)
+func (db *appdbimpl) BanUser(banned string, banner string) error {
+	_, err := db.c.Exec("INSERT INTO banned (banner, banned) VALUES(?, ?) ", banner, banned)
 
 	if err != nil {
 		return err
@@ -12,8 +12,8 @@ func (db *appdbimpl) BanUser(newBanned UserId, newBanner UserId) error {
 }
 
 // UnbanUser removes an user from another user's banned list
-func (db *appdbimpl) UnbanUser(oldBanned UserId, oldBanner UserId) error {
-	_, err := db.c.Exec("DELETE FROM banned WHERE (bannerid = ? AND bannedid = ?) ", oldBanner.UserId, oldBanned.UserId)
+func (db *appdbimpl) UnbanUser(exBanned string, exBanner string) error {
+	_, err := db.c.Exec("DELETE FROM banned WHERE (bannerid = ? AND bannedid = ?) ", exBanner, exBanned)
 
 	if err != nil {
 		return err
@@ -24,8 +24,8 @@ func (db *appdbimpl) UnbanUser(oldBanned UserId, oldBanner UserId) error {
 
 // BanCheck returns "true" if the user A has been banned by user B, "false" otherwise
 // This function is used when an user wants to retrieve information about another user
-func (db *appdbimpl) BanCheck(bannedUser UserId, bannerUser UserId) (bool, error) {
-	isBanned, err := db.c.Query("SELECT bannedid FROM banned WHERE (bannerid = ? AND bannedid = ?)", bannerUser.UserId, bannedUser.UserId)
+func (db *appdbimpl) BanCheck(banned string, banner string) (bool, error) {
+	isBanned, err := db.c.Query("SELECT bannedid FROM banned WHERE (bannerid = ? AND bannedid = ?)", banner, banned)
 
 	if err != nil {
 		return false, err
