@@ -52,7 +52,7 @@ func (db *appdbimpl) GetFollowing(userid string) ([]string, error) {
 	return following, nil
 }
 
-// Getfollowers returns the list an user's followers
+// GetFollowers returns the list an user's followers
 func (db *appdbimpl) GetFollowers(userid string) ([]string, error) {
 	rows, err := db.c.Query("SELECT followerid FROM followers WHERE followedid = ?", userid)
 

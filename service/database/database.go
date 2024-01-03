@@ -64,7 +64,7 @@ type AppDatabase interface {
 
 	UncommentPhoto(photoid int, userid string, commentid int) error
 
-	//Other methods
+	// Other methods
 
 	GetFollowing(userid string) ([]string, error)
 	GetFollowers(userid string) ([]string, error)
@@ -87,7 +87,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 		return nil, errors.New("database is required when building a AppDatabase")
 	}
 
-	//Enable foreign keys for database
+	// Enable foreign keys for database
 	_, errFK := db.Exec("PRAGMA foreign_keys = ON")
 	if errFK != nil {
 		return nil, fmt.Errorf("error in setting pragmas: %w", errFK)

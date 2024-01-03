@@ -1,13 +1,14 @@
 package api
 
 import (
+	"WASAPhoto/service/api/reqcontext"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"strconv"
 )
 
 // Removes a comment of a photo
-func (rt *_router) deleteComment(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (rt *_router) deleteComment(w http.ResponseWriter, r *http.Request, ps httprouter.Params, context reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 
 	userId := extractToken(r.Header.Get("Authorization"))

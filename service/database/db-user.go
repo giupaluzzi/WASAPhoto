@@ -22,5 +22,9 @@ func (db *appdbimpl) CheckUser(userid string) (bool, error) {
 		return true, nil
 	}
 
+	if rows.Err() != nil {
+		return false, err
+	}
+
 	return false, nil
 }

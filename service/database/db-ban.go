@@ -35,5 +35,9 @@ func (db *appdbimpl) BanCheck(banned string, banner string) (bool, error) {
 		return true, nil
 	}
 
+	if isBanned.Err() != nil {
+		return false, err
+	}
+
 	return false, nil
 }

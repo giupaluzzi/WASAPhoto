@@ -224,10 +224,11 @@ paths:
           content:
             application/json:
               schema:
-                description:  "Unique user identifier"
+                description:  "Unique user identifier returned after the login"
                 type: object
                 properties:
                   userid:
+                    description: "Unique user identifier"
                     type: string
                     example: "Marietto1"
 

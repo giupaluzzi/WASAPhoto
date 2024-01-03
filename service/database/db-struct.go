@@ -2,7 +2,7 @@ package database
 
 import "time"
 
-//This file contains all the structures needed for the database package
+// This file contains all the structures needed for the database package
 
 type User struct {
 	UserId    string  `json:"userid"`

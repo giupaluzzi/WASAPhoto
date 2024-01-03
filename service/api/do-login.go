@@ -1,13 +1,19 @@
 package api
 
 import (
+	"WASAPhoto/service/api/reqcontext"
 	"encoding/json"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
+	"os"
+	"path/filepath"
 )
 
-// Upload a new photo
-func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+const userUploads = "./user_uploads"
+
+// If the user does not exist, it will be created and an identifier is returned.
+// If the user exists, the user identifier is returned.
+func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter.Params, context reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 
 	var userId string
@@ -19,7 +25,7 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 
 	err = rt.db.CreateUser(userId)
 	if err != nil {
-		//user already exists
+		// User already exists
 		err = json.NewEncoder(w).Encode(userId)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -32,6 +38,13 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
+	err = createFolder(userId)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	err = json.NewEncoder(w).Encode(User{
 		UserId:    userId,
 		Following: nil,
@@ -51,4 +64,16 @@ func isValid(userid string) bool {
 		return false
 	}
 	return true
+}
+
+// createFolder creates a local folder for the specified userId
+func createFolder(userid string) error {
+	path := filepath.Join(userUploads, userid)
+
+	// Create the upload directory for the user if it doesn't exist
+	if err := os.MkdirAll(path, 0755); err != nil {
+		return err
+	}
+
+	return nil
 }

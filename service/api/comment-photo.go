@@ -1,6 +1,7 @@
 package api
 
 import (
+	"WASAPhoto/service/api/reqcontext"
 	"encoding/json"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
@@ -8,7 +9,7 @@ import (
 )
 
 // Comment a photo
-func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, context reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 
 	userId := extractToken(r.Header.Get("Authorization"))

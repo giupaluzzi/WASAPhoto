@@ -1,12 +1,13 @@
 package api
 
 import (
+	"WASAPhoto/service/api/reqcontext"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 )
 
 // Unfollow a followed user
-func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, context reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 
 	userId := extractToken(r.Header.Get("Authorization"))

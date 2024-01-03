@@ -1,13 +1,14 @@
 package api
 
 import (
+	"WASAPhoto/service/api/reqcontext"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"strconv"
 )
 
 // Like a photo
-func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, context reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 	userId := extractToken(r.Header.Get("Authorization"))
 	photoId, err := strconv.Atoi(ps.ByName("photoid"))

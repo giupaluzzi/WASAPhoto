@@ -1,13 +1,14 @@
 package api
 
 import (
+	"WASAPhoto/service/api/reqcontext"
 	"encoding/json"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 )
 
 // Return the user's photos in reverse chronological order and the user's followers and following
-func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httprouter.Params, context reqcontext.RequestContext) {
 
 	userId := extractToken(r.Header.Get("Authorization"))
 	var newUserId string
