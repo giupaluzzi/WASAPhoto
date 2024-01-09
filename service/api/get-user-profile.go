@@ -15,7 +15,7 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 
 	isUser, err := rt.db.CheckUser(requestedUser)
 	if err != nil {
-		//User does not exist
+		// User does not exist
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
