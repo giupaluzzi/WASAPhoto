@@ -11,6 +11,8 @@ import (
 
 const userUploads = "./user_uploads"
 
+var loggedUser string
+
 // If the user does not exist, it will be created and an identifier is returned.
 // If the user exists, the user identifier is returned.
 func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter.Params, context reqcontext.RequestContext) {
@@ -31,6 +33,8 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
+
+		loggedUser = userId
 		return
 	}
 
@@ -39,12 +43,13 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 		return
 	}
 
+	loggedUser = userId
+
 	err = createFolder(userId)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
 	err = json.NewEncoder(w).Encode(User{
 		UserId:    userId,
 		Following: nil,

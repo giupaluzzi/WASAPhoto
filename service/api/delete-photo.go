@@ -11,7 +11,13 @@ import (
 func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, context reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 
-	userId := extractToken(r.Header.Get("Authorization"))
+	userId := removeBearer(r.Header.Get("Authorization"))
+
+	if userId != loggedUser {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
 	photoId, err := strconv.Atoi(ps.ByName("photoid"))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)

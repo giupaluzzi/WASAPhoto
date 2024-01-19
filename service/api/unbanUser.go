@@ -10,10 +10,27 @@ import (
 func (rt *_router) unbanUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, context reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 
-	userId := extractToken(r.Header.Get("Authorization"))
+	userId := removeBearer(r.Header.Get("Authorization"))
+
+	if userId != loggedUser {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
 	bannedId := ps.ByName("banneduid")
 
-	err := rt.db.UnbanUser(bannedId, userId)
+	isBanned, err := rt.db.BanCheck(userId, bannedId)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if isBanned == false {
+		// bannedId isn't banned
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
+	err = rt.db.UnbanUser(bannedId, userId)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return

@@ -9,10 +9,28 @@ import (
 // Ban an user
 func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, context reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
-	userId := extractToken(r.Header.Get("Authorization"))
+
+	userId := removeBearer(r.Header.Get("Authorization"))
+
+	if userId != loggedUser {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
 	bannedId := ps.ByName("banneduid")
 
-	err := rt.db.BanUser(bannedId, userId)
+	isBanned, err := rt.db.BanCheck(userId, bannedId)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if isBanned == true {
+		// bannedId is already banned
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
+	err = rt.db.BanUser(bannedId, userId)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return

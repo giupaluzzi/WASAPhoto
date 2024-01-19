@@ -20,7 +20,13 @@ func (db *appdbimpl) GetStream(userid string) ([]Photo, error) {
 		if err != nil {
 			return nil, err
 		}
-		stream = append(stream, p)
+		isBanned, err := db.BanCheck(userid, p.UserId)
+		if err != nil {
+			return nil, err
+		}
+		if !isBanned {
+			stream = append(stream, p)
+		}
 	}
 
 	if rows.Err() != nil {

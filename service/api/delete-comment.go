@@ -11,7 +11,13 @@ import (
 func (rt *_router) deleteComment(w http.ResponseWriter, r *http.Request, ps httprouter.Params, context reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 
-	userId := extractToken(r.Header.Get("Authorization"))
+	userId := removeBearer(r.Header.Get("Authorization"))
+
+	if userId != loggedUser {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
 	photoId, err := strconv.Atoi(ps.ByName("photoid"))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -21,6 +27,12 @@ func (rt *_router) deleteComment(w http.ResponseWriter, r *http.Request, ps http
 	commentId, err := strconv.Atoi(ps.ByName("commentid"))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	authorCheck, err := rt.db.GetPhoto(photoId)
+	if authorCheck.UserId != userId {
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 

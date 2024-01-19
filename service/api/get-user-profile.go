@@ -10,16 +10,23 @@ import (
 // Return the user's photos in reverse chronological order and the user's followers and following
 func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps httprouter.Params, context reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
-	userId := extractToken(r.Header.Get("Authorization"))
-	requestedUser := ps.ByName("userid")
 
+	userId := removeBearer(r.Header.Get("Authorization"))
+
+	if userId != loggedUser {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	requestedUser := ps.ByName("userid")
 	isUser, err := rt.db.CheckUser(requestedUser)
+
 	if err != nil {
-		// User does not exist
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	if isUser == false {
+		// User does not exist
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
@@ -29,7 +36,7 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	if isBanned == false {
+	if isBanned == true {
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
@@ -54,7 +61,7 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 
 	w.WriteHeader(http.StatusOK)
 	err = json.NewEncoder(w).Encode(Profile{
-		UserId:    userId,
+		UserId:    requestedUser,
 		Following: following,
 		Followers: followers,
 		Photos:    photos,

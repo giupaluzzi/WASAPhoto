@@ -12,10 +12,32 @@ import (
 func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, context reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 
-	userId := extractToken(r.Header.Get("Authorization"))
+	userId := removeBearer(r.Header.Get("Authorization"))
+
+	if userId != loggedUser {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
 	photoId, err := strconv.Atoi(ps.ByName("photoid"))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	photo, err := rt.db.GetPhoto(photoId)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	isBanned, err := rt.db.BanCheck(userId, photo.UserId)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if isBanned == true {
+		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 

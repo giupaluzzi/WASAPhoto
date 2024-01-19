@@ -72,6 +72,7 @@ type AppDatabase interface {
 	GetPhotoList(userid string) ([]Photo, error)
 	GetPhotoComments(photoid int) ([]Comment, error)
 	CheckUser(userid string) (bool, error)
+	GetPhoto(photoid int) (Photo, error)
 
 	Ping() error
 }

@@ -10,7 +10,13 @@ import (
 func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, context reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 
-	userId := extractToken(r.Header.Get("Authorization"))
+	userId := removeBearer(r.Header.Get("Authorization"))
+
+	if userId != loggedUser {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
 	userToFollow := ps.ByName("followinguid")
 
 	err := rt.db.FollowUser(userToFollow, userId)
