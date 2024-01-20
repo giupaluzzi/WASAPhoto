@@ -2,7 +2,7 @@ package database
 
 // CreatePhoto creates a photo
 func (db *appdbimpl) CreatePhoto(photo Photo) (int, error) {
-	id, err := db.c.Exec("INSERT INTO photos (userid, date) VALUES(?, ?) ", photo.UserId, photo.Date)
+	id, err := db.c.Exec("INSERT INTO photos (userid, date, file) VALUES(?, ?) ", photo.UserId, photo.Date, photo.File)
 
 	if err != nil {
 		return -1, err
@@ -39,10 +39,25 @@ func (db *appdbimpl) GetPhotoList(userid string) ([]Photo, error) {
 
 	for rows.Next() {
 		var p Photo
-		err = rows.Scan(&p.PhotoId, &p.UserId, &p.Date)
+		err = rows.Scan(&p.PhotoId, &p.UserId, &p.Date, &p.File)
 		if err != nil {
 			return nil, err
 		}
+
+		comments, _ := db.GetPhotoComments(p.PhotoId)
+		if err != nil {
+			return nil, err
+		}
+
+		p.Comments = comments
+
+		likes, _ := db.GetPhotoLikes(p.PhotoId)
+		if err != nil {
+			return nil, err
+		}
+
+		p.Likes = likes
+		
 		photos = append(photos, p)
 	}
 

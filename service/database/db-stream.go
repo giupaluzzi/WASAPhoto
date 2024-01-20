@@ -16,14 +16,30 @@ func (db *appdbimpl) GetStream(userid string) ([]Photo, error) {
 
 	for rows.Next() {
 		var p Photo
-		err = rows.Scan(&p.PhotoId, &p.UserId, &p.Date)
+		err = rows.Scan(&p.PhotoId, &p.UserId, &p.Date, &p.File)
 		if err != nil {
 			return nil, err
 		}
+
+		comments, _ := db.GetPhotoComments(p.PhotoId)
+		if err != nil {
+			return nil, err
+		}
+
+		p.Comments = comments
+
+		likes, _ := db.GetPhotoLikes(p.PhotoId)
+		if err != nil {
+			return nil, err
+		}
+
+		p.Likes = likes
+
 		isBanned, err := db.BanCheck(userid, p.UserId)
 		if err != nil {
 			return nil, err
 		}
+
 		if !isBanned {
 			stream = append(stream, p)
 		}

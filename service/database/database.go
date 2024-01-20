@@ -71,6 +71,7 @@ type AppDatabase interface {
 	BanCheck(banned string, banner string) (bool, error)
 	GetPhotoList(userid string) ([]Photo, error)
 	GetPhotoComments(photoid int) ([]Comment, error)
+	GetPhotoLikes(photoid int) ([]User, error)
 	CheckUser(userid string) (bool, error)
 	GetPhoto(photoid int) (Photo, error)
 
@@ -107,6 +108,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 				photoid INTEGER PRIMARY KEY,
 				userid VARCHAR(16) NOT NULL, 
 				date DATETIME NOT NULL,
+				file BLOB NOT NULL,
 				FOREIGN KEY(userid) REFERENCES users (userid) ON DELETE CASCADE
 				);`,
 			`CREATE TABLE comments (

@@ -23,9 +23,10 @@ type Profile struct {
 type Photo struct {
 	PhotoId  int                `json:"photoid"`
 	UserId   string             `json:"userid"`
-	Likes    []int              `json:"likes"`
+	Likes    []string           `json:"likes"`
 	Comments []database.Comment `json:"comments"`
 	Date     time.Time          `json:"date"`
+	File     []byte             `json:"file"`
 }
 
 type Comment struct {

@@ -5,11 +5,7 @@ import "time"
 // This file contains all the structures needed for the database package
 
 type User struct {
-	UserId    string  `json:"userid"`
-	Followers []int   `json:"followers"`
-	Following []int   `json:"following"`
-	Banned    []int   `json:"banned"`
-	Photos    []Photo `json:"photos"`
+	UserId string `json:"userid"`
 }
 
 type Comment struct {
@@ -22,7 +18,8 @@ type Comment struct {
 type Photo struct {
 	PhotoId  int       `json:"photoid"`
 	UserId   string    `json:"userid"`
-	Likes    []int     `json:"likes"`
+	Likes    []User    `json:"likes"`
 	Comments []Comment `json:"comments"`
 	Date     time.Time `json:"date"`
+	File     []byte    `json:"file"`
 }

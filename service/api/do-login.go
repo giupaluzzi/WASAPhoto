@@ -5,11 +5,7 @@ import (
 	"encoding/json"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
-	"os"
-	"path/filepath"
 )
-
-const userUploads = "./user_uploads"
 
 var loggedUser string
 
@@ -45,11 +41,6 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 
 	loggedUser = userId
 
-	err = createFolder(userId)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
 	err = json.NewEncoder(w).Encode(User{
 		UserId:    userId,
 		Following: nil,
@@ -69,16 +60,4 @@ func isValid(userid string) bool {
 		return false
 	}
 	return true
-}
-
-// createFolder creates a local folder for the specified userId
-func createFolder(userid string) error {
-	path := filepath.Join(userUploads, userid)
-
-	// Create the upload directory for the user if it doesn't exist
-	if err := os.MkdirAll(path, 0755); err != nil {
-		return err
-	}
-
-	return nil
 }
