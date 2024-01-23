@@ -57,7 +57,7 @@ func (db *appdbimpl) GetPhotoList(userid string) ([]Photo, error) {
 		}
 
 		p.Likes = likes
-		
+
 		photos = append(photos, p)
 	}
 

@@ -9,6 +9,7 @@ import (
 
 // Return the user's photos in reverse chronological order and the user's followers and following
 func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httprouter.Params, context reqcontext.RequestContext) {
+	w.Header().Set("content-type", "application/json")
 
 	userId := removeBearer(r.Header.Get("Authorization"))
 
@@ -19,6 +20,7 @@ func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httpro
 
 	var newUserId string
 	err := json.NewDecoder(r.Body).Decode(&newUserId)
+
 	err = rt.db.SetMyUsername(userId, newUserId)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)

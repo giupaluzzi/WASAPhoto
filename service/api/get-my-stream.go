@@ -26,5 +26,9 @@ func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 
 	w.WriteHeader(http.StatusOK)
 
-	_ = json.NewEncoder(w).Encode(stream)
+	err = json.NewEncoder(w).Encode(stream)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }
