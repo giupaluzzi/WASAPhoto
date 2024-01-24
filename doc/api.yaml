@@ -320,12 +320,8 @@ paths:
       summary:  Follow an user
       description:  "Follow a new user with given userid and update followers list of the new user"
       responses:
-        "200":
-          description:  "Successfully followed the user"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
+        "204":
+          description:  "User successfully followed"
         "400":
           description:  "Bad request, e.g. user already followed"
       security:
@@ -337,12 +333,8 @@ paths:
       summary:  Unfollow an user
       description:  "Unfollow an user with given userid"
       responses:
-        "200":
-          description:  "Successfully unfollowed the user"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
+        "204":
+          description:  "User successfully unfollowed"
         "404":
           description:  "Not found, e.g. user already unfollowed"
       security:
@@ -359,12 +351,8 @@ paths:
       summary:  Ban an user
       description:  "Ban an user with given userid"
       responses:
-        "200":
-          description:  "Successfully banned the user"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
+        "204":
+          description:  "User successfully banned"
         "400":
           description:  "Bad request, e.g. user already banned"
       security:
@@ -377,12 +365,8 @@ paths:
       summary:  Unban an user
       description:  "Remove the ban on an user with given userid"
       responses:
-        "200":
-          description:  "Successfully unbanned an user"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
+        "204":
+          description:  "User successfully unbanned"
         "404":
           description:  "Not found, e.g. user already unbanned"
       security:
@@ -449,12 +433,8 @@ paths:
       summary:  Like a photo
       description:  "Like a photo with given photoid"
       responses:
-        "200":
-          description:  "Successfully liked the photo"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Photo"
+        "204":
+          description:  "Like successfully put"
         "400":
           description:  "Bad request, e.g. photo already liked"
       security:
@@ -466,12 +446,8 @@ paths:
       summary:  Unlike a photo
       description:  "Remove a like on a photo with given photoid"
       responses:
-        "200":
-          description:  "Successfully unliked the photo"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Photo"
+        "204":
+          description:  "Like successfully removed"
         "404":
           description:  "Not found, e.g. photo removed from the system"
       security:
@@ -517,12 +493,8 @@ paths:
       summary:  Remove a comment on a photo
       description:  "Remove a comment on a photo, only if the action is performed by the author of the photo"
       responses:
-        "200":
-          description:  "Comment successfully deleted"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Comment"
+        "204":
+          description:  "Comment successfully removed"
         "404":
           description:  "Not found, e.g. comment already removed"
       security:

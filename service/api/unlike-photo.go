@@ -9,7 +9,6 @@ import (
 
 // Remove a like on a photo
 func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, context reqcontext.RequestContext) {
-	w.Header().Set("content-type", "application/json")
 
 	userId := removeBearer(r.Header.Get("Authorization"))
 

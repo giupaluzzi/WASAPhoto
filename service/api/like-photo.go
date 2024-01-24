@@ -9,7 +9,6 @@ import (
 
 // Like a photo
 func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, context reqcontext.RequestContext) {
-	w.Header().Set("content-type", "application/json")
 
 	userId := removeBearer(r.Header.Get("Authorization"))
 

@@ -8,7 +8,6 @@ import (
 
 // Unfollow a followed user
 func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, context reqcontext.RequestContext) {
-	w.Header().Set("content-type", "application/json")
 
 	userId := removeBearer(r.Header.Get("Authorization"))
 

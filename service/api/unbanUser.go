@@ -8,7 +8,6 @@ import (
 
 // Unban an user
 func (rt *_router) unbanUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, context reqcontext.RequestContext) {
-	w.Header().Set("content-type", "application/json")
 
 	userId := removeBearer(r.Header.Get("Authorization"))
 
