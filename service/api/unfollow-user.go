@@ -20,6 +20,7 @@ func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httpr
 
 	err := rt.db.UnfollowUser(userToUnfollow, userId)
 	if err != nil {
+		context.Logger.WithError(err).Error("unfollowUser/UnfollowUser: error executing query")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

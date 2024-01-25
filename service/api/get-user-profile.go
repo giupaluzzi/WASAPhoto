@@ -22,6 +22,7 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 	isUser, err := rt.db.CheckUser(requestedUser)
 
 	if err != nil {
+		context.Logger.WithError(err).Error("getUserProfile/CheckUser: error executing db function")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -33,6 +34,7 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 
 	isBanned, err := rt.db.BanCheck(userId, requestedUser)
 	if err != nil {
+		context.Logger.WithError(err).Error("getUserProfile/BanCheck: error while executing db function")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -43,18 +45,21 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 
 	following, err := rt.db.GetFollowing(requestedUser)
 	if err != nil {
+		context.Logger.WithError(err).Error("getUserProfile/GetFollowing: error while executing db function")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	followers, err := rt.db.GetFollowers(requestedUser)
 	if err != nil {
+		context.Logger.WithError(err).Error("getUserProfile/GetFollowers: error while executing db function")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	photos, err := rt.db.GetPhotoList(requestedUser)
 	if err != nil {
+		context.Logger.WithError(err).Error("getUserProfile/GetPhotoList: error while executing db function")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -67,6 +72,7 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 		Photos:    photos,
 	})
 	if err != nil {
+		context.Logger.WithError(err).Error("getUserProfile/Encode/Profile: error while encoding json")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

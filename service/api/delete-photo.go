@@ -20,11 +20,7 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 
 	photoId, err := strconv.Atoi(ps.ByName("photoid"))
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	if err != nil {
+		context.Logger.WithError(err).Error("deletePhoto/photoId: error while executing query")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -32,6 +28,7 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	err = rt.db.DeletePhoto(photoId, userId)
 
 	if err != nil {
+		context.Logger.WithError(err).Error("deletePhoto/DeletePhoto: error while executing db function")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

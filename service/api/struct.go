@@ -5,6 +5,10 @@ import (
 	"time"
 )
 
+type UserId struct {
+	UserId string `json:"userid"`
+}
+
 type User struct {
 	UserId    string           `json:"userid"`
 	Following []string         `json:"following"`

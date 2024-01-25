@@ -19,12 +19,14 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 
 	photoId, err := strconv.Atoi(ps.ByName("photoid"))
 	if err != nil {
+		context.Logger.WithError(err).Error("likePhoto/photoId: error while executing query")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	err = rt.db.LikePhoto(photoId, userId)
 	if err != nil {
+		context.Logger.WithError(err).Error("likePhoto/LikePhoto: error while executing db function")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

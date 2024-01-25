@@ -19,24 +19,28 @@ func (rt *_router) deleteComment(w http.ResponseWriter, r *http.Request, ps http
 
 	photoId, err := strconv.Atoi(ps.ByName("photoid"))
 	if err != nil {
+		context.Logger.WithError(err).Error("deleteComment/photoId: error while executing query")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	commentId, err := strconv.Atoi(ps.ByName("commentid"))
 	if err != nil {
+		context.Logger.WithError(err).Error("deleteComment/commentId: error while executing query")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	authorCheck, err := rt.db.GetPhoto(photoId)
 	if authorCheck.UserId != userId {
+		context.Logger.WithError(err).Error("deleteComment/GetPhoto: error while executing db function")
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
 	err = rt.db.UncommentPhoto(photoId, userId, commentId)
 	if err != nil {
+		context.Logger.WithError(err).Error("deleteComment/UncommentPhoto: error while executing db function")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

@@ -20,10 +20,17 @@ func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httpro
 
 	var newUserId string
 	err := json.NewDecoder(r.Body).Decode(&newUserId)
+	if err != nil {
+		context.Logger.WithError(err).Error("setUsername/Decode/newUserId: error while decoding json")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	err = rt.db.SetMyUsername(userId, newUserId)
 	if err != nil {
+		context.Logger.WithError(err).Error("setUsername/SetMyUsername: error while executing db function")
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	w.WriteHeader(http.StatusNoContent)

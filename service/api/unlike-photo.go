@@ -18,14 +18,15 @@ func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 
 	photoId, err := strconv.Atoi(ps.ByName("photoid"))
-
 	if err != nil {
+		context.Logger.WithError(err).Error("unlikePhoto/photoId: error while executing query")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	err = rt.db.UnlikePhoto(photoId, userId)
 	if err != nil {
+		context.Logger.WithError(err).Error("unlikePhoto/UnlikePhoto: error while executing db function")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

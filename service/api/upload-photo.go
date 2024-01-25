@@ -24,6 +24,7 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 
 	file, err := ioutil.ReadAll(r.Body)
 	if err != nil {
+		context.Logger.WithError(err).Error("uploadPhoto/ReadAll: error while receiving binary file")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -43,6 +44,7 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		File:     file,
 	})
 	if err != nil {
+		context.Logger.WithError(err).Error("uploadPhoto/CreatePhoto: error while executing db function")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -57,6 +59,7 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	})
 
 	if err != nil {
+		context.Logger.WithError(err).Error("uploadPhoto/Encode/Photo: error while encoding json")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

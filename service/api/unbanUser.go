@@ -20,6 +20,7 @@ func (rt *_router) unbanUser(w http.ResponseWriter, r *http.Request, ps httprout
 
 	isBanned, err := rt.db.BanCheck(userId, bannedId)
 	if err != nil {
+		context.Logger.WithError(err).Error("unbanUser/BanCheck: error while executing db function")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -31,6 +32,7 @@ func (rt *_router) unbanUser(w http.ResponseWriter, r *http.Request, ps httprout
 
 	err = rt.db.UnbanUser(bannedId, userId)
 	if err != nil {
+		context.Logger.WithError(err).Error("unbanUser/UnbanUser: error while executing db function")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

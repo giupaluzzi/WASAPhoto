@@ -20,6 +20,7 @@ func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 
 	stream, err := rt.db.GetStream(userId)
 	if err != nil {
+		context.Logger.WithError(err).Error("getMyStream/GetStream: error while executing db function")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -28,6 +29,7 @@ func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 
 	err = json.NewEncoder(w).Encode(stream)
 	if err != nil {
+		context.Logger.WithError(err).Error("getMyStream/Encode/Stream: error while encoding json")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

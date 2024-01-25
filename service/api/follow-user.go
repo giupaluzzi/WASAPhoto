@@ -20,6 +20,7 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 
 	err := rt.db.FollowUser(userToFollow, userId)
 	if err != nil {
+		context.Logger.WithError(err).Error("followUser/FollowUser: error while executing db function")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

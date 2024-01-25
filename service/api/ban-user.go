@@ -20,6 +20,7 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 
 	isBanned, err := rt.db.BanCheck(userId, bannedId)
 	if err != nil {
+		context.Logger.WithError(err).Error("banUser/BanCheck: error while executing query")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -31,6 +32,7 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 
 	err = rt.db.BanUser(bannedId, userId)
 	if err != nil {
+		context.Logger.WithError(err).Error("banUser/BanUser: error while executing query")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

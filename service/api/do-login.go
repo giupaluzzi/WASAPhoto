@@ -14,35 +14,38 @@ var loggedUser string
 func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter.Params, context reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 
-	var userId string
+	var userId UserId
 	err := json.NewDecoder(r.Body).Decode(&userId)
 	if err != nil {
+		context.Logger.WithError(err).Error("doLogin/Decode/UserId: error while decoding json")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	err = rt.db.CreateUser(userId)
+	err = rt.db.CreateUser(userId.UserId)
 	if err != nil {
 		// User already exists
 		err = json.NewEncoder(w).Encode(userId)
 		if err != nil {
+			context.Logger.WithError(err).Error("doLogin/Encode/UserId: error while encoding json")
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
-		loggedUser = userId
+		loggedUser = userId.UserId
 		return
 	}
 
-	if !isValid(userId) {
+	if !isValid(userId.UserId) {
+		context.Logger.WithError(err).Error("doLogin/isValid: userId not valid")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	loggedUser = userId
+	loggedUser = userId.UserId
 
 	err = json.NewEncoder(w).Encode(User{
-		UserId:    userId,
+		UserId:    userId.UserId,
 		Following: nil,
 		Followers: nil,
 		Banned:    nil,
@@ -50,6 +53,7 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 	})
 
 	if err != nil {
+		context.Logger.WithError(err).Error("doLogin/Encode/User: error while encoding json")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
