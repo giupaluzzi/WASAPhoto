@@ -1,33 +1,36 @@
 <script>
-  export default {
+export default {
 
-    data: function() {
-      return {
-        errormsg: null,
-        loggedUser: "",
-      }
-    },
+  data: function() {
+    return {
+      errormsg: null,
+      loggedUser: "",
+    }
+  },
 
-    methods: {
-      async login() {
-        this.errormsg = null;
-        try {
-          let response = await this.$axios.post("/session", {userId: this.loggedUser.trim()});
-          localStorage.setItem('auth', response.data.userId);
-          this.$router.replace("/home")
-        } catch (e) {
-          this.errormsg = e.toString();
-        }
-      },
-    },
-
-    mounted() {
-      if (localStorage.getItem('auth')){
+  methods: {
+    async login() {
+      this.errormsg = null;
+      try {
+        let response = await this.$axios.post("/session", {userId: this.loggedUser.trim()});
+        localStorage.setItem("auth", response.data.userId);
+        this.$emit("login", true)
+        console.log("userId:", response.data.userId)
         this.$router.replace("/home")
+      } catch (e) {
+        this.errormsg = e.toString();
       }
     },
+  },
 
-  }
+  mounted() {
+    if (localStorage.getItem("auth")){
+      console.log("userId:", localStorage.getItem("auth"))
+      this.$router.replace("/home")
+    }
+  },
+
+}
 </script>
 
 <template>

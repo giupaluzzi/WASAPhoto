@@ -3,6 +3,7 @@ export default{
   data: function() {
     return {
       errormsg: null,
+      userId: localStorage.getItem("auth"),
     }
   },
 
@@ -15,33 +16,32 @@ export default{
       reader.readAsArrayBuffer(file)
 
       reader.onload = async () => {
-        let response = await this.$axios.post("/users/"+localStorage.getItem("auth")+"/photos"+reader.result, {
+        let response = await this.$axios.post("/users/"+localStorage.getItem("auth")+"/photos", reader.result, {
           headers: {'Content-Type': file.type},
         })
-      this.photos.unshift(response.data)
+        this.photos.unshift(response.data)
       };
     },
   },
 
-  computed:{
-    isLogged(){
-      return this.$route.params.id === localStorage.getItem('auth')
-    },
-  },
+  mounted(){
+    this.userId = localStorage.getItem("auth")
+    console.log('userId:', this.userId)
+  }
 }
 </script>
 
 <template>
   <div>
     <div>
-      <h3>{{ this.$route.params.userId }}</h3>
+      <h3>{{userId}}</h3>
     </div>
     <div>
-        <h2>Posts</h2>
-        <input id="fileUploader" type="file" @change="uploadPhoto" accept=".jpg, .png">
-        <label class="btn" v-if="isLogged" for="fileUploader">
-          <svg class="feather"><use href="/feather-sprite-v4.29.0.svg#upload"/>Upload</svg>
-        </label>
+      <h2>Posts</h2>
+      <input id="fileUploader" type="file" @change="uploadPhoto" accept=".jpg, .png">
+      <label class="btn" for="fileUploader">
+        <svg class="feather"><use href="/feather-sprite-v4.29.0.svg#upload"/>Upload</svg>
+      </label>
     </div>
 
 
