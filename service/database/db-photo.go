@@ -2,7 +2,7 @@ package database
 
 // CreatePhoto creates a photo
 func (db *appdbimpl) CreatePhoto(photo Photo) (int, error) {
-	id, err := db.c.Exec("INSERT INTO photos (userid, date, file) VALUES(?, ?) ", photo.UserId, photo.Date, photo.File)
+	id, err := db.c.Exec("INSERT INTO photos (userid, date, file) VALUES(?, ?, ?) ", photo.UserId, photo.Date, photo.File)
 
 	if err != nil {
 		return -1, err

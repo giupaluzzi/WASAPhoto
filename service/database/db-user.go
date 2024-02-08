@@ -2,7 +2,7 @@ package database
 
 // CreateUser creates an user
 func (db *appdbimpl) CreateUser(userid string) error {
-	_, err := db.c.Exec("INSERT INTO users (username) VALUES(?) ", userid)
+	_, err := db.c.Exec("INSERT INTO users (userid) VALUES(?) ", userid)
 
 	if err != nil {
 		return err

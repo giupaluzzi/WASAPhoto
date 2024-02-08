@@ -33,6 +33,7 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 		}
 
 		loggedUser = userId.UserId
+
 		return
 	}
 

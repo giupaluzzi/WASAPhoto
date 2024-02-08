@@ -9,7 +9,7 @@ instance.interceptors.request.use(
 	(config)=> {
 		const auth = localStorage.getItem('auth')
 		if (auth){
-			config.headers['Authorization'] = 'Bearer' + auth;
+			config.headers['Authorization'] = 'Bearer ' + auth;
 		}
 
 		return config

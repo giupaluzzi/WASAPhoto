@@ -4,7 +4,7 @@ export default {
   data: function() {
     return {
       errormsg: null,
-      loggedUser: "",
+      userid: "",
     }
   },
 
@@ -12,10 +12,13 @@ export default {
     async login() {
       this.errormsg = null;
       try {
-        let response = await this.$axios.post("/session", {userId: this.loggedUser.trim()});
-        localStorage.setItem("auth", response.data.userId);
+        let response = await this.$axios.post("/session", {userid: this.userid.trim()});
+        // console.log("response:", response)
+        // console.log("response.data:", response.data)
+        // console.log("response.data.userid:", response.data.userid)
+        localStorage.setItem("auth", response.data.userid);
         this.$emit("login", true)
-        console.log("userId:", response.data.userId)
+        // console.log("userid:", response.data.userid)
         this.$router.replace("/home")
       } catch (e) {
         this.errormsg = e.toString();
@@ -25,7 +28,7 @@ export default {
 
   mounted() {
     if (localStorage.getItem("auth")){
-      console.log("userId:", localStorage.getItem("auth"))
+      // console.log("userid:", localStorage.getItem("auth"))
       this.$router.replace("/home")
     }
   },
@@ -37,19 +40,19 @@ export default {
   <div>
     <div
         class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-      <h1 class="h2">Login</h1>
+      <h2>Login</h2>
     </div>
 
     <ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
 
     <form @submit.prevent="login">
       <div class="mb-3">
-        <label for="username" class="form-label">Username</label>
-        <input type="text" class="form-control" v-model="loggedUser" maxlength="16" minlength="3" placeholder="Your username" />
+        <label for="userid" class="form-label">Username</label>
+        <input type="text" class="form-control" v-model="userid" maxlength="16" minlength="3" placeholder="Your username" />
       </div>
 
       <div class="col ">
-        <button :disabled="loggedUser == null || loggedUser.length >16 || loggedUser.length <3 || loggedUser.trim().length<3">
+        <button :disabled="userid == null || userid.length >16 || userid.length <3 || userid.trim().length<3">
           Register / Login
         </button>
       </div>
