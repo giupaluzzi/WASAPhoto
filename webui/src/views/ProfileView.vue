@@ -36,9 +36,9 @@ export default{
       this.errormsg = null
       try {
         let response = await this.$axios.get("/users/" + this.userid)
-        this.followers = response.data.followers
-        this.following = response.data.following
-        this.photos = response.data.photos
+        this.followers = response.data.followers != null ? response.data.followers : []
+        this.following = response.data.following != null ? response.data.following : []
+        this.photos = response.data.photos != null ? response.data.photos : []
       } catch(e){
         this.errormsg = e.toString();
       }
@@ -49,6 +49,7 @@ export default{
     this.userid = localStorage.getItem("auth")
     // console.log('userid:', this.userid)
     this.getProfile()
+
   }
 }
 </script>
@@ -56,24 +57,28 @@ export default{
 <template>
   <div>
     <div>
-      <h2>{{this.userid}}</h2>
-      <h4>Followers: {{this.followers.length}}</h4>
-      <h4>Following: {{this.following.length}}</h4>
+      <h2>{{userid}}</h2>
+      <h4>Followers: {{followers.length}}</h4>
+      <h4>Following: {{following.length}}</h4>
     </div>
     <div>
       <h4>Posts</h4>
-      <input type="file" ref="inputFile" accept=".jpg, .png" @change="changeFile"/>
-      <button type="button" v-if="photoToUpload" @click="uploadPhoto">
-        <svg class="feather"><use href="/feather-sprite-v4.29.0.svg#upload"/>Upload</svg>
-      </button>
-    </div>
-
-    <div v-if="photos && photos.length >0">
-      <div v-for="photo in photos" :key="photo.photoid">
-        <img :src="photo.file" alt="User's photo">
+        <input type="file" ref="inputFile" accept=".jpg, .png" @change="changeFile"/>
+        <button type="button" :disabled="!photoToUpload" @click="uploadPhoto">
+          Upload
+          {{ !photoToUpload }}
+        </button>
+      <div v-if="photos && photos.length >0">
+        <ul>
+          <li v-for="p in photos" :key="p.photoid">
+            <img :src="p.file" alt="User's photo" />
+            {{p.date}}
+            {{p.likes}}
+            {{p.comments}}
+          </li>
+        </ul>
       </div>
     </div>
-
     <ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
   </div>
 </template>
