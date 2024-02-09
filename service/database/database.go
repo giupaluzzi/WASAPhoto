@@ -116,8 +116,8 @@ func New(db *sql.DB) (AppDatabase, error) {
 				userid VARCHAR(16) NOT NULL, 
 				photoid INTEGER NOT NULL,
 				commentText TEXT NOT NULL,
-				FOREIGN KEY(photoid) REFERENCES photos (photoid),
-				FOREIGN KEY(userid) REFERENCES photos (userid)
+				FOREIGN KEY(photoid) REFERENCES photos (photoid) ON DELETE CASCADE ,
+				FOREIGN KEY(userid) REFERENCES users (userid) ON DELETE CASCADE 
 				);`,
 			`CREATE TABLE followers (
 				followerid VARCHAR(16) NOT NULL,

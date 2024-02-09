@@ -10,7 +10,7 @@ const router = createRouter({
 		{path: '/login', component: LoginView},
 		{path: '/home', component: HomeView /*, meta: {requiresAuth: true}*/ },
 //		{path: '/users/:id', component: SearchView, meta: {requiresAuth: true}},
-		{path: '/profile', component: ProfileView /*, meta: {requiresAuth: true}*/},
+		{path: '/users/:id', component: ProfileView /*, meta: {requiresAuth: true}*/},
 //		{path: '/settings', component: SettingsView, meta: {requiresAuth: true}}
 	]
 })

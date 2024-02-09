@@ -5,7 +5,7 @@ import { RouterLink, RouterView } from 'vue-router'
 export default {
   data() {
     return {
-      logged: false
+      logged: false,
     }
   },
   methods: {
@@ -15,7 +15,7 @@ export default {
     },
     login(value) {
       this.logged = value
-    }
+    },
   },
   mounted() {
     if (!localStorage.getItem('auth')) {
@@ -23,7 +23,7 @@ export default {
     } else {
       this.logged = true
     }
-  }
+  },
 }
 </script>
 

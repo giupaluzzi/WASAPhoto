@@ -2,6 +2,11 @@
 import {RouterLink} from "vue-router";
 
 export default {
+  data (){
+    return {
+      profileURL: `/users/${localStorage.getItem('auth')}`
+    }
+  },
   components: {RouterLink},
   methods: {
     logout() {
@@ -40,17 +45,19 @@ export default {
               </RouterLink>
             </li>
             <li class="nav-item">
-              <RouterLink to="/profile" class="nav-link">
+              <RouterLink :to="profileURL" class="nav-link">
                 <svg class="feather"><use href="/feather-sprite-v4.29.0.svg#user"/></svg>
                 My Profile
               </RouterLink>
             </li>
+<!--
             <li class="nav-item">
-              <RouterLink to="/profile/settings" class="nav-link">
+              <RouterLink to="/settings" class="nav-link">
                 <svg class="feather"><use href="/feather-sprite-v4.29.0.svg#settings"/></svg>
                 Settings
               </RouterLink>
             </li>
+-->
             <li class="nav-item">
               <RouterLink to="/login" class="nav-link" @click="logout">
                 <svg class="feather"><use href="/feather-sprite-v4.29.0.svg#log-out"/></svg>

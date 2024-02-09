@@ -17,6 +17,9 @@ func (db *appdbimpl) CheckUser(userid string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	defer func() {
+		_ = rows.Close()
+	}()
 
 	if rows.Next() == true {
 		return true, nil

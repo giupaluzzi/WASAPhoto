@@ -31,6 +31,10 @@ func (db *appdbimpl) BanCheck(banned string, banner string) (bool, error) {
 		return false, err
 	}
 
+	defer func() {
+		_ = isBanned.Close()
+	}()
+
 	if isBanned.Next() == true {
 		return true, nil
 	}
