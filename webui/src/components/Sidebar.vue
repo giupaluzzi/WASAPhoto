@@ -4,7 +4,8 @@ import {RouterLink} from "vue-router";
 export default {
   data (){
     return {
-      profileURL: `/users/${localStorage.getItem('auth')}`
+      profileURL: `/users/${localStorage.getItem('auth')}`,
+      searchUserId: ""
     }
   },
   components: {RouterLink},
@@ -13,7 +14,13 @@ export default {
       localStorage.removeItem('auth');
       this.$emit("logout", false)
     },
-  },
+
+    search() {
+      if (this.searchUserId.trim() !== "") {
+        this.$router.push(`/users/${this.searchUserId}`)
+      }
+    },
+  }
 };
 </script>
 
@@ -28,36 +35,26 @@ export default {
       </header>
       <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
         <div class="position-sticky pt-3 sidebar-sticky">
-          <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted text-uppercase">
-            <span>General</span>
-          </h6>
           <ul class="nav flex-column">
+            <li class="nav-item">
+              <form class="d-flex" @submit.prevent="search">
+                <input class="form-control me-2" type="search" placeholder="Enter UserID" v-model="searchUserId">
+                <button class="btn btn-outline-primary" type="submit">Search</button>
+              </form>
+            </li>
             <li class="nav-item">
               <RouterLink to="/home" class="nav-link">
                 <svg class="feather"><use href="/feather-sprite-v4.29.0.svg#home"/></svg>
                 Home
               </RouterLink>
             </li>
-            <li class="nav-item">
-              <RouterLink to="/search" class="nav-link">
-                <svg class="feather"><use href="/feather-sprite-v4.29.0.svg#search"/></svg>
-                Search
-              </RouterLink>
-            </li>
+
             <li class="nav-item">
               <RouterLink :to="profileURL" class="nav-link">
                 <svg class="feather"><use href="/feather-sprite-v4.29.0.svg#user"/></svg>
                 My Profile
               </RouterLink>
             </li>
-<!--
-            <li class="nav-item">
-              <RouterLink to="/settings" class="nav-link">
-                <svg class="feather"><use href="/feather-sprite-v4.29.0.svg#settings"/></svg>
-                Settings
-              </RouterLink>
-            </li>
--->
             <li class="nav-item">
               <RouterLink to="/login" class="nav-link" @click="logout">
                 <svg class="feather"><use href="/feather-sprite-v4.29.0.svg#log-out"/></svg>

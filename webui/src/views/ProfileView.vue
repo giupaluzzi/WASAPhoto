@@ -6,10 +6,12 @@ export default{
   data: function() {
     return {
       errormsg: null,
-      userid: localStorage.getItem("auth"),
 
       newuserid: "",
       editing: false,
+
+      isFollowed: false,
+      isBanned: false,
 
       followers: [],
       following: [],
@@ -23,6 +25,7 @@ export default{
 
   methods: {
 
+    // SetUsername Methods
     editUserid() {
       this.editing = !this.editing
     },
@@ -36,9 +39,9 @@ export default{
       this.loading = true
       this.errormsg = null
       try{
-        let response = await this.$axios.put("/users/" +this.userid+"/username", {newuserid: this.newuserid});
-        this.userid = response.data.newuserid
-        localStorage.setItem("auth", this.userid)
+        let response = await this.$axios.put("/users/" +this.$route.params.id+"/username", {newuserid: this.newuserid});
+        this.$route.params.id = response.data.newuserid
+        localStorage.setItem("auth", this.$route.params.id)
         this.editing = false
         this.newuserid = ""
       } catch (e) {
@@ -47,11 +50,12 @@ export default{
       this.loading = false
     },
 
+    // UploadPhoto Methods
     async uploadPhoto(){
       this.loading = true
       this.errormsg = null
       try{
-        let response = await this.$axios.post("/users/" + this.userid + "/photos/", this.photoToUpload)
+        let response = await this.$axios.post("/users/" + this.$route.params.id + "/photos/", this.photoToUpload)
         // console.log("photoToUpload: ", response.data)
         this.photos.unshift(response.data)
         this.postCounter += 1
@@ -64,18 +68,18 @@ export default{
     changeFile() {
       this.photoToUpload = this.$refs.inputFile.files[0];
       // console.log("photoToUpload: ", this.$refs.inputFile.files[0])
-
     },
 
     getImg(data) {
       return `data:image/jpeg;base64,${data}`
     },
 
+    // DeletePhoto Method
     async deletePhoto(photoId){
       this.loading = true
       this.errormsg = null
       try{
-        let response = await this.$axios.delete("/users/"+this.userid+"/photos/"+photoId)
+        let response = await this.$axios.delete("/users/"+this.$route.params.id+"/photos/"+photoId)
         this.photos = this.photos.filter(photo => photo.photoid !== photoId);
         this.postCounter -=1
       } catch(e) {
@@ -84,11 +88,45 @@ export default{
       this.loading = false
     },
 
+    // Follow/Unfollow method
+    async follow(){
+      this.errormsg = null
+      try{
+        if (this.isFollowed) {
+          let response = await this.$axios.delete("/users/"+localStorage.getItem("auth")+"/following/"+this.$route.params.id)
+        } else{
+          let response = await this.$axios.put("/users/"+localStorage.getItem("auth")+"/following/"+this.$route.params.id)
+        }
+        this.isFollowed = !this.isFollowed
+      } catch(e) {
+        this.errormsg = e.toString()
+      }
+    },
+
+    // Ban/Unban method
+    async ban(){
+      this.errormsg = null
+      try{
+        if (this.isBanned) {
+          let response = await this.$axios.delete("/users/"+localStorage.getItem("auth")+"/banned/"+this.$route.params.id)
+          this.getProfile()
+        } else{
+          let response = await this.$axios.put("/users/"+localStorage.getItem("auth")+"/banned/"+this.$route.params.id)
+          let _ = await this.$axios.delete("/users/"+localStorage.getItem("auth")+"/following/"+this.$route.params.id)
+          this.isFollowed = false
+        }
+        this.isBanned = !this.isBanned
+      } catch(e) {
+        this.errormsg = e.toString()
+      }
+    },
+
+    // Method to retrieve information about an user from db
     async getProfile(){
       this.loading = true
       this.errormsg = null
       try {
-        let response = await this.$axios.get("/users/" + this.userid)
+        let response = await this.$axios.get("/users/" + this.$route.params.id)
         this.followers = response.data.followers != null ? response.data.followers : []
         this.following = response.data.following != null ? response.data.following : []
         this.photos = response.data.photos != null ? response.data.photos : []
@@ -104,37 +142,55 @@ export default{
     },
   },
 
-  mounted(){
-    this.userid = localStorage.getItem("auth")
+  computed:{
+    isLogged(){
+      return this.$route.params.id === localStorage.getItem("auth")
+    },
+  },
+
+  async mounted(){
     // console.log('userid:', this.userid)
-    this.getProfile()
+    await this.getProfile()
 
   }
 }
 </script>
 <template>
   <div>
+
     <div>
-      <h2>{{userid}}
-        <svg class="feather" @click="editUserid"> <use href="/feather-sprite-v4.29.0.svg#edit"/></svg>
+      <h2>{{this.$route.params.id}}
+        <!--    SetUsername   -->
+        <svg v-if="isLogged" class="feather" @click="editUserid"> <use href="/feather-sprite-v4.29.0.svg#edit"/></svg>
       </h2>
       <h6>
-        <input type="text" v-model="newuserid" v-if="editing" />
+        <input type="text" placeholder="Enter new UserID" v-model="newuserid" v-if="editing" />
         <button v-if="editing" @click="setUsername">Apply</button>
         <button v-if="editing" @click="cancelEdit">Cancel</button>
+
+        <!--    Follow/Unfollow    -->
+        <button v-if="!isLogged && !isBanned" @click="follow">
+          {{isFollowed ? "Unfollow" : "Follow"}}
+        </button>
+
+        <!--    Ban/Unban   -->
+        <button v-if="!isLogged" @click="ban">
+          {{isBanned ? "Unban" : "Ban"}}
+        </button>
       </h6>
+
       <hr>
       <h4>Followers: {{followers.length}}</h4>
       <h4>Following: {{following.length}}</h4>
     </div>
     <hr>
-    <div>
-      <div>
+    <div v-if="!isBanned">
       <h4>Posts: {{postCounter}}</h4>
-        <input type="file" ref="inputFile" accept=".jpg, .png" @change="changeFile"/>
-        <button type="button" :disabled="!photoToUpload" @click="uploadPhoto">
-          <svg class="feather"><use href="/feather-sprite-v4.29.0.svg#upload"/></svg>
-        </button>
+      <div v-if="isLogged">
+          <input type="file" ref="inputFile" accept=".jpg, .png" @change="changeFile"/>
+          <button type="button" :disabled="!photoToUpload" @click="uploadPhoto">
+            <svg class="feather"><use href="/feather-sprite-v4.29.0.svg#upload"/></svg>
+          </button>
       </div>
       <div v-if="photos && photos.length >0" class="grid">
         <ul class="post-list">
@@ -145,13 +201,13 @@ export default{
                 <b>Uploading date: </b>
                   {{p.date}}
                 <br>
-                <b>Likes: </b>
+                <b>Likes:</b>
                   {{p.likes !== null ? p.likes.length : 0 }}
                 <br>
                 <b>Comments: </b>
                   {{ p.comments !== null && p.comments.length > 0 ? p.comments : 'No comments yet' }}
               </div>
-              <button type="button" @click="deletePhoto(p.photoid)">
+              <button v-if="isLogged" type="button" @click="deletePhoto(p.photoid)">
                 Delete
               </button>
             </div>

@@ -2,7 +2,7 @@ package database
 
 // BanUser adds an user to another user's banned list
 func (db *appdbimpl) BanUser(banned string, banner string) error {
-	_, err := db.c.Exec("INSERT INTO banned (banner, banned) VALUES(?, ?) ", banner, banned)
+	_, err := db.c.Exec("INSERT INTO banned (bannerid, bannedid) VALUES(?, ?) ", banner, banned)
 
 	if err != nil {
 		return err
