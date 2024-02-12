@@ -27,10 +27,10 @@ export default {
       try {
         if (this.isLiked) {
           await this.$axios.delete("/users/" + this.userid + "/photos/" + this.photoid + "/likes/" + localStorage.getItem("auth"))
-          this.TotalLikes.push(localStorage.getItem("auth"))
+          this.TotalLikes.filter(userid => userid !== localStorage.getItem("auth"))
         } else {
           await this.$axios.put("/users/" + this.userid + "/photos/" + this.photoid + "/likes/" + localStorage.getItem("auth"))
-          this.TotalLikes.pop(localStorage.getItem("auth"))
+          this.TotalLikes.push(localStorage.getItem("auth"))
         }
         this.isLiked = !this.isLiked
       } catch (e) {
@@ -85,7 +85,7 @@ export default {
       }
 
       if (this.comments != null) {
-        this.TotalComments = this.TotalLikes
+        this.TotalComments = this.comments
       }
     }
 
@@ -108,7 +108,11 @@ export default {
 
             <b>Likes:</b>
               {{TotalLikes.length}}
+            <!--
               <i @click="toggleLike" :class="'fa ' + (isLiked ? 'fa-heart' : 'fa-heart-o')"></i>
+              -->
+            <i @click="toggleLike" :class="{ 'like-icon': true, 'active': isLiked }">&#x2665;</i>
+
             <br>
 
             <b>Comments: </b>
@@ -144,4 +148,14 @@ export default {
 .delete-button {
   width: 100%;
 }
+
+.like-icon {
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.like-icon.active {
+  color: red;
+}
+
 </style>
