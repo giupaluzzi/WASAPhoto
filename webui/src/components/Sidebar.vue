@@ -4,7 +4,6 @@ import {RouterLink} from "vue-router";
 export default {
   data (){
     return {
-      profileURL: `/users/${localStorage.getItem('auth')}`,
       searchUserId: ""
     }
   },
@@ -17,7 +16,7 @@ export default {
 
     search() {
       if (this.searchUserId.trim() !== "") {
-        this.$router.push(`/users/${this.searchUserId}`)
+        this.$router.push("/users/"+this.searchUserId)
       }
     },
   }
@@ -50,11 +49,19 @@ export default {
             </li>
 
             <li class="nav-item">
-              <RouterLink :to="profileURL" class="nav-link">
+              <RouterLink to="/profile" class="nav-link">
                 <svg class="feather"><use href="/feather-sprite-v4.29.0.svg#user"/></svg>
                 My Profile
               </RouterLink>
             </li>
+
+            <li class="nav-item">
+              <RouterLink to="/profile/settings" class="nav-link">
+                <svg class="feather"><use href="/feather-sprite-v4.29.0.svg#settings"/></svg>
+                Settings
+              </RouterLink>
+            </li>
+
             <li class="nav-item">
               <RouterLink to="/login" class="nav-link" @click="logout">
                 <svg class="feather"><use href="/feather-sprite-v4.29.0.svg#log-out"/></svg>

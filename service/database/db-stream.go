@@ -2,7 +2,7 @@ package database
 
 // GetStream returns the list of photo of the users followed by an user
 func (db *appdbimpl) GetStream(userid string) ([]Photo, error) {
-	rows, err := db.c.Query("SELECT * FROM photos WHERE userid IN (SELECT followedid FROM followers WHERE followedid = ?) ORDER BY date DESC", userid)
+	rows, err := db.c.Query("SELECT * FROM photos WHERE userid IN (SELECT followedid FROM followers WHERE followerid = ?) ORDER BY date DESC", userid)
 
 	if err != nil {
 		return nil, err
