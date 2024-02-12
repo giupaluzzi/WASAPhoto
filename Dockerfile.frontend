@@ -4,4 +4,4 @@ COPY webui webui
 WORKDIR /app/webui
 RUN npm run build-prod
 FROM nginx:stable
-COPY --from=frontend_builder /app/dist /usr/share/nginx/html
+COPY --from=frontend_builder /app/webui/dist /usr/share/nginx/html
