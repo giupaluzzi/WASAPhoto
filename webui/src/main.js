@@ -5,6 +5,7 @@ import axios from './services/axios.js';
 import ErrorMsg from './components/ErrorMsg.vue'
 import LoadingSpinner from './components/LoadingSpinner.vue'
 import Sidebar from "./components/Sidebar.vue"
+import Photo from "./components/Photo.vue";
 
 
 import './assets/dashboard.css'
@@ -15,5 +16,6 @@ app.config.globalProperties.$axios = axios;
 app.component("ErrorMsg", ErrorMsg);
 app.component("LoadingSpinner", LoadingSpinner);
 app.component("Sidebar", Sidebar);
+app.component("Photo", Photo);
 app.use(router)
 app.mount('#app')

@@ -17,6 +17,11 @@ export default {
       this.logged = value
     },
   },
+
+  created() {
+    localStorage.clear()
+  },
+
   mounted() {
     if (!localStorage.getItem('auth')) {
       this.$router.replace("/login")
