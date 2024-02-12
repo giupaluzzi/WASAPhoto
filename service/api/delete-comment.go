@@ -31,9 +31,15 @@ func (rt *_router) deleteComment(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 
-	authorCheck, err := rt.db.GetPhoto(photoId)
-	if authorCheck.UserId != userId {
+	owner, err := rt.db.GetPhotoOwner(photoId)
+	if err != nil {
 		context.Logger.WithError(err).Error("deleteComment/GetPhoto: error while executing db function")
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	if owner != userId {
+		context.Logger.WithError(err).Error("deleteComment/CheckAuthor: logged userid is not the owner of the photo")
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}

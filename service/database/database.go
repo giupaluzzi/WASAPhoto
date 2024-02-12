@@ -73,7 +73,7 @@ type AppDatabase interface {
 	GetPhotoComments(photoid int) ([]Comment, error)
 	GetPhotoLikes(photoid int) ([]User, error)
 	CheckUser(userid string) (bool, error)
-	GetPhoto(photoid int) (Photo, error)
+	GetPhotoOwner(photoid int) (string, error)
 
 	Ping() error
 }

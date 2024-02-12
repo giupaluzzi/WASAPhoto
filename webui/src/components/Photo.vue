@@ -9,6 +9,7 @@ export default {
       TotalLikes: [],
       TotalComments: [],
       isLiked: false,
+      newCommentText: "",
     }
   },
 
@@ -27,7 +28,7 @@ export default {
       try {
         if (this.isLiked) {
           await this.$axios.delete("/users/" + this.userid + "/photos/" + this.photoid + "/likes/" + localStorage.getItem("auth"))
-          this.TotalLikes.filter(userid => userid !== localStorage.getItem("auth"))
+          this.TotalLikes = this.TotalLikes.filter(userid => userid !== localStorage.getItem("auth"))
         } else {
           await this.$axios.put("/users/" + this.userid + "/photos/" + this.photoid + "/likes/" + localStorage.getItem("auth"))
           this.TotalLikes.push(localStorage.getItem("auth"))
@@ -52,30 +53,31 @@ export default {
     getImg(data) {
       return `data:image/jpeg;base64,${data}`
     },
-/*
+
     // Comment/Uncomment methods
-    async addComment(photo) {
+    async postComment() {
       this.errormsg = null
       if (!this.newCommentText.trim()) return
       try {
-        let response = await this.$axios.post("/users/" + this.$route.params.id + "/photos/" + photo.photoid + "/comments/")
-        photo.comments.push(response.data)
+        let response = await this.$axios.post("/users/" + this.userid + "/photos/" + this.photoid + "/comments/",
+            {photoid: this.photoid, userid: localStorage.getItem("auth"), commentText: this.newCommentText})
+        this.TotalComments.push(response.data)
         this.newCommentText = ""
       } catch (e) {
         this.errormsg = e.toString()
       }
     },
 
-    async deleteComment(photo, commentid) {
+    async deleteComment(commentid) {
       this.errormsg = null
       try {
-        let response = await this.$axios.delete("/users/" + localStorage.getItem("auth") + "/photos/" + photo.photoid + "/comments/" + commentid)
-        photo.comments = photo.comments.filter(c => c.id !== commentid);
+        await this.$axios.delete("/users/" + localStorage.getItem("auth") + "/photos/" + this.photoid + "/comments/" + commentid)
+        this.TotalComments = this.TotalComments.filter(comment => comment.commentid !== commentid)
       } catch (e) {
         this.errormsg = e.toString()
       }
     },
-*/
+
   },
 
     mounted() {
@@ -108,15 +110,29 @@ export default {
 
             <b>Likes:</b>
               {{TotalLikes.length}}
-            <!--
-              <i @click="toggleLike" :class="'fa ' + (isLiked ? 'fa-heart' : 'fa-heart-o')"></i>
-              -->
+
             <i @click="toggleLike" :class="{ 'like-icon': true, 'active': isLiked }">&#x2665;</i>
 
             <br>
 
             <b>Comments: </b>
-              {{TotalComments.length}}
+              <ul v-if="TotalComments.length > 0">
+                <li v-for="comment in TotalComments" :key="comment.commentid">
+                  <div>
+                    {{comment.userid}}: {{ comment.commentText }}
+                    <button v-if="isOwner" @click="deleteComment(comment.commentid)">
+                      <svg class="feather"><use href="/feather-sprite-v4.29.0.svg#trash-2"/></svg>
+                    </button>
+                  </div>
+                </li>
+              </ul>
+
+            <form @submit.prevent="postComment">
+              <textarea v-model="newCommentText" placeholder="Add a comment"></textarea>
+              <button type="submit">
+                Post
+              </button>
+            </form>
 
             <hr>
             <button type="button" v-if="isOwner" @click="deletePhoto(photoid)" class="delete-button">
