@@ -35,7 +35,9 @@ export default{
     <h5>
       Change your Username
       <input type="text" placeholder="Enter new Username" v-model="newuserid" />
-      <button @click="setUsername">Apply</button>
+      <button @click="setUsername" :disabled="newuserid == null || newuserid.length >16 || newuserid.length <3 || newuserid.trim().length<3">
+        Apply
+      </button>
     </h5>
   </div>
 </template>

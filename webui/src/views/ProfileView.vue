@@ -1,14 +1,8 @@
 <script>
 import ErrorMsg from "../components/ErrorMsg.vue";
 import Photo from "../components/Photo.vue";
-import NotFoundView from "./NotFoundView.vue";
 
 export default {
-  computed: {
-    NotFoundView() {
-      return NotFoundView
-    }
-  },
   components: {Photo, ErrorMsg},
 
   data: function() {
@@ -87,7 +81,7 @@ export default {
         this.followers = response.data.followers != null ? response.data.followers : []
         this.following = response.data.following != null ? response.data.following : []
         this.followersCounter = response.data.followers != null ? response.data.followers : []
-        this.isFollowed = response.data.followers != null ? response.data.followers.find(f => f.userid === localStorage.getItem("auth")) : false
+        this.isFollowed = response.data.followers != null ? response.data.followers.find(f => f === localStorage.getItem("auth")) : false
         this.photos = response.data.photos != null ? response.data.photos : []
         this.postCounter = response.data.photos != null ? response.data.photos.length : 0
 
