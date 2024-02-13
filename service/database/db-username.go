@@ -16,6 +16,9 @@ func (db *appdbimpl) SetMyUsername(userid string, newUserid string) error {
 	}
 
 	_, err = db.c.Exec("PRAGMA foreign_keys = OFF")
+	if err != nil {
+		return err
+	}
 
 	_, err = db.c.Exec("UPDATE users SET userid = ? WHERE userid = ?", newUserid, userid)
 	if err != nil {
@@ -58,6 +61,9 @@ func (db *appdbimpl) SetMyUsername(userid string, newUserid string) error {
 	}
 
 	_, err = db.c.Exec("PRAGMA foreign_keys = ON")
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

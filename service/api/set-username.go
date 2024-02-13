@@ -33,5 +33,7 @@ func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
+	loggedUser = newUserId.UserId
+
 	w.WriteHeader(http.StatusNoContent)
 }

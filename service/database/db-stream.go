@@ -21,23 +21,23 @@ func (db *appdbimpl) GetStream(userid string) ([]Photo, error) {
 			return nil, err
 		}
 
-		comments, _ := db.GetPhotoComments(p.PhotoId)
-		if err != nil {
-			return nil, err
+		comments, errC := db.GetPhotoComments(p.PhotoId)
+		if errC != nil {
+			return nil, errC
 		}
 
 		p.Comments = comments
 
-		likes, _ := db.GetPhotoLikes(p.PhotoId)
-		if err != nil {
-			return nil, err
+		likes, errL := db.GetPhotoLikes(p.PhotoId)
+		if errL != nil {
+			return nil, errL
 		}
 
 		p.Likes = likes
 
-		isBanned, err := db.BanCheck(userid, p.UserId)
-		if err != nil {
-			return nil, err
+		isBanned, errB := db.BanCheck(userid, p.UserId)
+		if errB != nil {
+			return nil, errB
 		}
 
 		if !isBanned {

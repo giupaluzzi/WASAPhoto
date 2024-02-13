@@ -33,7 +33,7 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 		return
 	}
 
-	// Check if the loggedUser has been banned by the requestedUser
+	// Check if the loggedUser has been banned by requestedUser
 	loggedIsBanned, err := rt.db.BanCheck(userId, requestedUser)
 	if err != nil {
 		context.Logger.WithError(err).Error("getUserProfile/BanCheck/loggedIsBanned: error while executing db function")
@@ -45,7 +45,7 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 		return
 	}
 
-	// Check if requestedUser is banned
+	// Check if requestedUser has been banned by loggedUser
 	isBanned, err := rt.db.BanCheck(requestedUser, userId)
 	if err != nil {
 		context.Logger.WithError(err).Error("getUserProfile/BanCheck/isBanned: error while executing db function")
