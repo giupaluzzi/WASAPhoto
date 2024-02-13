@@ -18,7 +18,7 @@ func (rt *_router) unbanUser(w http.ResponseWriter, r *http.Request, ps httprout
 
 	bannedId := ps.ByName("banneduid")
 
-	isBanned, err := rt.db.BanCheck(userId, bannedId)
+	isBanned, err := rt.db.BanCheck(bannedId, userId)
 	if err != nil {
 		context.Logger.WithError(err).Error("unbanUser/BanCheck: error while executing db function")
 		w.WriteHeader(http.StatusInternalServerError)

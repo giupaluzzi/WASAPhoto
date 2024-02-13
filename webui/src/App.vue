@@ -19,7 +19,10 @@ export default {
   },
 
   created() {
+    if (!localStorage.getItem('started')) {
       localStorage.clear()
+      localStorage.setItem('started', true)
+    }
   },
 
   mounted() {
