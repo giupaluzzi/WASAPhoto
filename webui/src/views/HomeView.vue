@@ -1,8 +1,9 @@
 <script>
 import Photo from "../components/Photo.vue";
+import ErrorMsg from "../components/ErrorMsg.vue";
 
 export default {
-  components: {Photo},
+  components: {Photo, ErrorMsg},
   data: function() {
     return {
       errormsg: null,
@@ -11,6 +12,7 @@ export default {
   },
   methods: {
     async getStream() {
+      this.errormsg = null
       try{
         let response = await this.$axios.get("/users/"+localStorage.getItem('auth')+"/stream")
         if (response.data != null) {

@@ -19,8 +19,9 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 	}
 
 	requestedUser := ps.ByName("userid")
-	isUser, err := rt.db.CheckUser(requestedUser)
 
+	// Check if requestedUser exists
+	isUser, err := rt.db.CheckUser(requestedUser)
 	if err != nil {
 		context.Logger.WithError(err).Error("getUserProfile/CheckUser: error executing db function")
 		w.WriteHeader(http.StatusInternalServerError)
@@ -28,18 +29,31 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 	}
 	if isUser == false {
 		// User does not exist
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
+	// Check if the loggedUser has been banned by the requestedUser
+	loggedIsBanned, err := rt.db.BanCheck(userId, requestedUser)
+	if err != nil {
+		context.Logger.WithError(err).Error("getUserProfile/BanCheck/loggedIsBanned: error while executing db function")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if loggedIsBanned == true {
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 
-	isBanned, err := rt.db.BanCheck(userId, requestedUser)
+	// Check if requestedUser is banned
+	isBanned, err := rt.db.BanCheck(requestedUser, userId)
 	if err != nil {
-		context.Logger.WithError(err).Error("getUserProfile/BanCheck: error while executing db function")
+		context.Logger.WithError(err).Error("getUserProfile/BanCheck/isBanned: error while executing db function")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	if isBanned == true {
-		w.WriteHeader(http.StatusForbidden)
+		w.WriteHeader(http.StatusPartialContent)
 		return
 	}
 

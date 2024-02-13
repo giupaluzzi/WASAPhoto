@@ -68,7 +68,7 @@ func (db *appdbimpl) GetPhotoList(userid string) ([]Photo, error) {
 	return photos, nil
 }
 
-// GetPhoto returns a Photo given its photoId
+// GetPhotoOwner returns a Photo given its photoId
 func (db *appdbimpl) GetPhotoOwner(photoid int) (string, error) {
 	var UserId string
 	err := db.c.QueryRow("SELECT userid FROM photos WHERE photoid = ?", photoid).Scan(&UserId)

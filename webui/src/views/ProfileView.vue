@@ -1,8 +1,14 @@
 <script>
 import ErrorMsg from "../components/ErrorMsg.vue";
 import Photo from "../components/Photo.vue";
+import NotFoundView from "./NotFoundView.vue";
 
 export default {
+  computed: {
+    NotFoundView() {
+      return NotFoundView
+    }
+  },
   components: {Photo, ErrorMsg},
 
   data: function() {
@@ -18,6 +24,8 @@ export default {
       followers: [],
       following: [],
 
+      isUser: false,
+      LoggedIsBanned: false,
     }
   },
 
@@ -61,13 +69,30 @@ export default {
       this.errormsg = null
       try {
         let response = await this.$axios.get("/users/" + this.$route.params.id)
+
+        this.isBanned = false
+        this.isUser = true
+        this.LoggedIsBanned = false
+
+        if (response.status === 206){
+          this.isBanned = true
+          return
+        }
+
+        if (response.status === 204){
+          this.isUser = false
+          return
+        }
+
         this.followers = response.data.followers != null ? response.data.followers : []
         this.following = response.data.following != null ? response.data.following : []
         this.followersCounter = response.data.followers != null ? response.data.followers : []
         this.isFollowed = response.data.followers != null ? response.data.followers.find(f => f.userid === localStorage.getItem("auth")) : false
         this.photos = response.data.photos != null ? response.data.photos : []
         this.postCounter = response.data.photos != null ? response.data.photos.length : 0
+
       } catch(e){
+        this.LoggedIsBanned = true
         this.errormsg = e.toString();
       }
     },
@@ -81,7 +106,7 @@ export default {
 </script>
 
 <template>
-  <div>
+  <div v-if="isUser && !LoggedIsBanned">
     <div>
       <!--  Logged User's info  -->
       <h2>{{this.$route.params.id}}</h2>
@@ -127,6 +152,9 @@ export default {
       </div>
     </div>
     <ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
+  </div>
+  <div v-else class="h-100 d-flex justify-content-center align-items-center" >
+    <h2>The requested page doesn't exist.</h2>
   </div>
 </template>
 
