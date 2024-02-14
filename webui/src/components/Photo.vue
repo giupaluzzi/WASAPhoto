@@ -139,6 +139,9 @@ export default {
               Delete
             </button>
           </div>
+
+          <ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
+
         </div>
 
 </template>

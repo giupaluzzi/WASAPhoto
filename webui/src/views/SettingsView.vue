@@ -39,6 +39,9 @@ export default{
         Apply
       </button>
     </h5>
+
+    <ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
+
   </div>
 </template>
 
