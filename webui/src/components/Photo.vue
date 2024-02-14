@@ -3,6 +3,9 @@ import ErrorMsg from "./ErrorMsg.vue";
 
 export default {
   components: {ErrorMsg},
+
+  props: ['userid','photoid','likes','comments','date','file','isOwner'],
+
   data: function(){
     return{
       errormsg: null,
@@ -12,8 +15,6 @@ export default {
       newCommentText: "",
     }
   },
-
-  props: ['userid','photoid','likes','comments','date','file','isOwner'],
 
   methods: {
     // Like/Unlike method
@@ -80,10 +81,10 @@ export default {
 
   },
 
-    mounted() {
+    async mounted() {
       if (this.likes != null) {
         this.TotalLikes = this.likes
-        this.isLiked = this.TotalLikes.includes(localStorage.getItem("auth"))
+        this.isLiked = this.TotalLikes.some(like => like.userid === localStorage.getItem("auth"))
       }
 
       if (this.comments != null) {
