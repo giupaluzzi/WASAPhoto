@@ -13,7 +13,8 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 
 	userId := removeBearer(r.Header.Get("Authorization"))
 
-	if userId != loggedUser {
+	// if userId != loggedUser {
+	if isAuth(userId) {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}

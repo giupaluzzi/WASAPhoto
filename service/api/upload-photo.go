@@ -17,7 +17,8 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 
 	userId := removeBearer(r.Header.Get("Authorization"))
 
-	if userId != loggedUser {
+	// if userId != loggedUser {
+	if isAuth(userId) {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -37,7 +38,7 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 
 	creationTime := time.Now()
 	photoId, err := rt.db.CreatePhoto(database.Photo{
-		UserId:   loggedUser,
+		UserId:   userId,
 		Likes:    nil,
 		Comments: nil,
 		Date:     creationTime,

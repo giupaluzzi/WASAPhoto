@@ -12,3 +12,7 @@ func removeBearer(auth string) string {
 	}
 	return strings.TrimSpace(tokens[1])
 }
+
+func isAuth(auth string) bool {
+	return auth == ""
+}
