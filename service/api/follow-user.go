@@ -11,7 +11,6 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 
 	userId := removeBearer(r.Header.Get("Authorization"))
 
-	// if userId != loggedUser {
 	if isAuth(userId) {
 		w.WriteHeader(http.StatusUnauthorized)
 		return

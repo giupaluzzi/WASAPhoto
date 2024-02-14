@@ -13,7 +13,6 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 
 	userId := removeBearer(r.Header.Get("Authorization"))
 
-	// if userId != loggedUser {
 	if isAuth(userId) {
 		w.WriteHeader(http.StatusUnauthorized)
 		return

@@ -13,7 +13,6 @@ func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httpro
 
 	userId := removeBearer(r.Header.Get("Authorization"))
 
-	// if userId != loggedUser {
 	if isAuth(userId) {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
@@ -33,8 +32,6 @@ func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httpro
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
-	// loggedUser = newUserId.UserId
 
 	w.WriteHeader(http.StatusNoContent)
 }
