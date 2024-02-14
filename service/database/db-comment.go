@@ -38,7 +38,7 @@ func (db *appdbimpl) GetPhotoComments(photoid int) ([]Comment, error) {
 
 	for rows.Next() {
 		var c Comment
-		err = rows.Scan(&c.CommentId, &c.CommentText, &c.UserId, &c.PhotoId)
+		err = rows.Scan(&c.CommentId, &c.UserId, &c.PhotoId, &c.CommentText)
 		if err != nil {
 			return nil, err
 		}

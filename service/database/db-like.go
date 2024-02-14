@@ -24,7 +24,7 @@ func (db *appdbimpl) UnlikePhoto(photoid int, userid string) error {
 
 // GetPhotoLikes returns the list of userId who liked the photo
 func (db *appdbimpl) GetPhotoLikes(photoid int) ([]User, error) {
-	rows, err := db.c.Query("SELECT * FROM likes WHERE photoid = ?", photoid)
+	rows, err := db.c.Query("SELECT userid FROM likes WHERE photoid = ?", photoid)
 
 	if err != nil {
 		return nil, err

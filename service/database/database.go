@@ -115,7 +115,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 				commentid INTEGER PRIMARY KEY,
 				userid VARCHAR(16) NOT NULL, 
 				photoid INTEGER NOT NULL,
-				commentText TEXT NOT NULL,
+				commentText VARCHAR(50) NOT NULL,
 				FOREIGN KEY(photoid) REFERENCES photos (photoid) ON DELETE CASCADE ,
 				FOREIGN KEY(userid) REFERENCES users (userid) ON DELETE CASCADE 
 				);`,
