@@ -246,8 +246,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
+        "204":
+          description:  "Status No content (request has success but there's no content to send)"
+        "206":
+          description:  "Status Partial Content (Requesting user has been banned)"
+        "401":
+          description:  "Status Unauthorized (User isn't logged in)"
+        "403":
+          description:  "Status Forbidden (Access Denied)"
         "404":
-          description:  "User not found, e.g. the userid does not exist "
+          description:  "Status Not found (Resource doesn't exist)"
+        "500":
+          description:  "Status Internal Server Error"
+      security:
+        - bearerAuth: []
+
+    put:
+      operationId:  setMyUserName
+      tags:
+        - "user"
+      summary:  Set user's username
+      description:  |
+        Set or update user's username, using the data 
+        in the body of the request
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Username"
+        required: true
+      responses:
+        "204":
+          description:  "Status No content (request has success but there's no content to send)"
+        "401":
+          description:  "Status Unauthorized (User isn't logged in)"
+        "500":
+          description:  "Status Internal Server Error"
       security:
         - bearerAuth: []
 
@@ -274,38 +308,12 @@ paths:
                 maxItems: 15
                 items:
                   $ref: '#/components/schemas/Photo'
+        "401":
+          description:  "Status Unauthorized (User isn't logged in)"
         "404":
-          description:  "User not found, e.g. user does not exist"
-      security:
-        - bearerAuth: []
-
-  /users/{userid}/username:
-    parameters:
-      - $ref: "#/components/parameters/userid"
-
-    put:
-      operationId:  setMyUserName
-      tags:
-        - "user"
-      summary:  Set user's username
-      description:  |
-        Set or update user's username, using the data 
-        in the body of the request
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Username"
-        required: true
-      responses:
-        "200":
-          description:  Username saved successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User/properties/userid"
-        "400":
-          description:  bad request
+          description:  "Status Not found (Resource doesn't exist)"
+        "500":
+          description:  "Status Internal Server Error"
       security:
         - bearerAuth: []
 
@@ -318,12 +326,16 @@ paths:
       tags:
         - "user"
       summary:  Follow an user
-      description:  "Follow a new user with given userid and update followers list of the new user"
+      description:  |
+        Follow an user with a certain userid, update followers list
+        of the new user and following list of the logged in user
       responses:
         "204":
-          description:  "User successfully followed"
-        "400":
-          description:  "Bad request, e.g. user already followed"
+          description:  "Status No content (request has success but there's no content to send)"
+        "401":
+          description:  "Status Unauthorized (User isn't logged in)"
+        "500":
+          description:  "Status Internal Server Error"
       security:
         - bearerAuth: []
     delete:
@@ -331,12 +343,16 @@ paths:
       tags:
         - "user"
       summary:  Unfollow an user
-      description:  "Unfollow an user with given userid"
+      description:  |
+        Unfollow an user with a certain userid, update followers list
+        of the new user and following list of the logged in user
       responses:
         "204":
-          description:  "User successfully unfollowed"
-        "404":
-          description:  "Not found, e.g. user already unfollowed"
+          description:  "Status No content (request has success but there's no content to send)"
+        "401":
+          description:  "Status Unauthorized (User isn't logged in)"
+        "500":
+          description:  "Status Internal Server Error"
       security:
         - bearerAuth: []
 
@@ -349,12 +365,17 @@ paths:
       tags:
         - "user"
       summary:  Ban an user
-      description:  "Ban an user with given userid"
+      description:  |
+        Ban an user with a certain userid
       responses:
         "204":
-          description:  "User successfully banned"
-        "400":
-          description:  "Bad request, e.g. user already banned"
+          description:  "Status No content (request has success but there's no content to send)"
+        "401":
+          description:  "Status Unauthorized (User isn't logged in)"
+        "403":
+          description:  "Status Forbidden (Access Denied)"
+        "500":
+          description:  "Status Internal Server Error"
       security:
         - bearerAuth: []
 
@@ -363,12 +384,17 @@ paths:
       tags:
         - "user"
       summary:  Unban an user
-      description:  "Remove the ban on an user with given userid"
+      description:  |
+        Remove the ban on an user with given userid
       responses:
         "204":
-          description:  "User successfully unbanned"
-        "404":
-          description:  "Not found, e.g. user already unbanned"
+          description:  "Status No content (request has success but there's no content to send)"
+        "401":
+          description:  "Status Unauthorized (User isn't logged in)"
+        "403":
+          description:  "Status Forbidden (Access Denied)"
+        "500":
+          description:  "Status Internal Server Error"
       security:
         - bearerAuth: []
 
@@ -380,7 +406,8 @@ paths:
       tags:
         - "photo"
       summary:  Upload a photo
-      description:  "Upload a photo and associate it with given userid"
+      description:  |
+        Upload a photo and associate it with given userid
       requestBody:
         required: true
         content:
@@ -395,7 +422,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/Photo"
         "400":
-          description:  "Bad request, e.g. image format not supported"
+          description:  "Status Bad Request (e.g. Wrong image type)"
+        "401":
+          description:  "Status Unauthorized (User isn't logged in)"
+        "500":
+          description:  "Status Internal Server Error"
       security:
         - bearerAuth: []
 
@@ -408,16 +439,17 @@ paths:
       tags:
         - "photo"
       summary:  Delete a photo
-      description:  "Remove a photo from user's profile"
+      description:  |
+        Remove a photo from user's profile
       responses:
-        "200":
-          description:  "Photo deleted successfully"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Photo"
-        "404":
-          description:  "Photo not found"
+        "204":
+          description:  "Status No content (request has success but there's no content to send)"
+        "400":
+          description:  "Status Bad Request"
+        "401":
+          description:  "Status Unauthorized (User isn't logged in)"
+        "500":
+          description:  "Status Internal Server Error"
       security:
         - bearerAuth: []
 
@@ -431,12 +463,17 @@ paths:
       tags:
         - "photo"
       summary:  Like a photo
-      description:  "Like a photo with given photoid"
+      description:  |
+        Like a photo with given photoid
       responses:
         "204":
-          description:  "Like successfully put"
+          description:  "Status No content (request has success but there's no content to send)"
         "400":
-          description:  "Bad request, e.g. photo already liked"
+          description:  "Status Bad Request"
+        "401":
+          description:  "Status Unauthorized (User isn't logged in)"
+        "500":
+          description:  "Status Internal Server Error"
       security:
         - bearerAuth: []
     delete:
@@ -444,12 +481,17 @@ paths:
       tags:
         - "photo"
       summary:  Unlike a photo
-      description:  "Remove a like on a photo with given photoid"
+      description:  |
+        Remove a like on a photo with given photoid
       responses:
         "204":
-          description:  "Like successfully removed"
-        "404":
-          description:  "Not found, e.g. photo removed from the system"
+          description:  "Status No content (request has success but there's no content to send)"
+        "400":
+          description:  "Status Bad Request"
+        "401":
+          description:  "Status Unauthorized (User isn't logged in)"
+        "500":
+          description:  "Status Internal Server Error"
       security:
         - bearerAuth: []
 
@@ -462,7 +504,9 @@ paths:
       tags:
         - "photo"
       summary:  "Comment a photo"
-      description:  "Add  a comment to a photo with given photoid, author userid and userid of the user adding the comment. "
+      description:  |
+        Add  a comment to a photo with given photoid, author 
+        userid and userid of the user adding the comment
       requestBody:
         required: true
         content:
@@ -476,8 +520,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Photo/properties/comments'
-        "404":
-          description:  "Not found, e.g. the photo does not exist"
+        "400":
+          description:  "Status Bad Request"
+        "401":
+          description:  "Status Unauthorized (User isn't logged in)"
+        "403":
+          description:  "Status Forbidden (Access Denied)"
+        "500":
+          description:  "Status Internal Server Error"
       security:
         - bearerAuth: []
 
@@ -491,11 +541,17 @@ paths:
       tags:
         - "photo"
       summary:  Remove a comment on a photo
-      description:  "Remove a comment on a photo, only if the action is performed by the author of the photo"
+      description:  |
+        Remove a comment on a photo, only if the action is
+        performed by the author of the photo
       responses:
         "204":
-          description:  "Comment successfully removed"
-        "404":
-          description:  "Not found, e.g. comment already removed"
+          description:  "Status No content (request has success but there's no content to send)"
+        "400":
+          description:  "Status Bad Request"
+        "401":
+          description:  "Status Unauthorized (User isn't logged in or User isn't the owner of the photo)"
+        "500":
+          description:  "Status Internal Server Error"
       security:
         - bearerAuth: []
