@@ -40,6 +40,7 @@
 
       deletePost(photoid){
           this.photos = this.photos.filter(item => item.photoid !== photoid)
+          this.postCounter = this.photos.length
         },
 
       // Method to retrieve information about logged user from db

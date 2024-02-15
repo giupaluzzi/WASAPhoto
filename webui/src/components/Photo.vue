@@ -45,7 +45,7 @@ export default {
       this.errormsg = null
       try{
         await this.$axios.delete("/users/"+localStorage.getItem("auth")+"/photos/"+this.photoid)
-        this.$emit("deletePost",this.photoid)
+        this.$emit("deletePhoto",this.photoid)
       } catch(e) {
         this.errormsg = e.toString()
       }
