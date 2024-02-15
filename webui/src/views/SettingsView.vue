@@ -15,7 +15,7 @@ export default{
     async setUsername() {
       this.errormsg = null
       try{
-        await this.$axios.put("/users/"+localStorage.getItem("auth")+"/username", {userid: this.newuserid})
+        await this.$axios.put("/users/"+localStorage.getItem("auth"), {userid: this.newuserid})
         localStorage.setItem("auth", this.newuserid)
         this.newuserid = ""
       } catch(e) {
