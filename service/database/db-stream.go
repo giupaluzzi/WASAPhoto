@@ -35,14 +35,25 @@ func (db *appdbimpl) GetStream(userid string) ([]Photo, error) {
 
 		p.Likes = likes
 
-		isBanned, errB := db.BanCheck(userid, p.UserId)
-		if errB != nil {
-			return nil, errB
+		// Check if requesting user has been banned by requested user
+		loggedIsBanned, errLoggedBan := db.BanCheck(userid, p.UserId)
+		if errLoggedBan != nil {
+			return nil, errLoggedBan
 		}
 
-		if !isBanned {
-			stream = append(stream, p)
+		if !loggedIsBanned {
+			// Check if requested user has been banned by requesting user
+			isBanned, errBan := db.BanCheck(p.UserId, userid)
+			if errBan != nil {
+				return nil, errBan
+			}
+
+			if !isBanned {
+				stream = append(stream, p)
+				
+			}
 		}
+
 	}
 
 	if rows.Err() != nil {
