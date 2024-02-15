@@ -14,7 +14,7 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.GET("/users/:userid", rt.wrap(rt.getUserProfile))
 
 	// Username
-	rt.router.PUT("/users/:userid/username", rt.wrap(rt.setUsername))
+	rt.router.PUT("/users/:userid", rt.wrap(rt.setUsername))
 
 	// Stream
 	rt.router.GET("/users/:userid/stream", rt.wrap(rt.getMyStream))

@@ -13,6 +13,7 @@ func removeBearer(auth string) string {
 	return strings.TrimSpace(tokens[1])
 }
 
+// isAuth checks if an user is logged in
 func isAuth(auth string) bool {
 	return auth == ""
 }

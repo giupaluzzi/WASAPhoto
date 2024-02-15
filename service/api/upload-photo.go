@@ -31,7 +31,7 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 
 	contentType := r.Header.Get("Content-Type")
 	if strings.HasPrefix(contentType, "image/") {
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -45,9 +45,11 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	})
 	if err != nil {
 		context.Logger.WithError(err).Error("uploadPhoto/CreatePhoto: error while executing db function")
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	w.WriteHeader(http.StatusCreated)
 
 	err = json.NewEncoder(w).Encode(Photo{
 		PhotoId:  photoId,
