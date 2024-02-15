@@ -12,7 +12,7 @@ func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 	w.Header().Set("content-type", "application/json")
 
 	userId := removeBearer(r.Header.Get("Authorization"))
-	
+
 	if isAuth(userId) {
 		w.WriteHeader(http.StatusUnauthorized)
 		return

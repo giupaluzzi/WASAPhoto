@@ -250,6 +250,10 @@ paths:
           description:  "Status No content (request has success but there's no content to send)"
         "206":
           description:  "Status Partial Content (Requesting user has been banned)"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
         "401":
           description:  "Status Unauthorized (User isn't logged in)"
         "403":

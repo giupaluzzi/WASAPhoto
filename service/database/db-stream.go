@@ -50,7 +50,7 @@ func (db *appdbimpl) GetStream(userid string) ([]Photo, error) {
 
 			if !isBanned {
 				stream = append(stream, p)
-				
+
 			}
 		}
 
