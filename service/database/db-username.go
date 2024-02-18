@@ -2,6 +2,8 @@ package database
 
 import "errors"
 
+var ErrorUseridExists = errors.New("UserID already in use")
+
 // SetMyUsername updates logged user's username
 func (db *appdbimpl) SetMyUsername(userid string, newUserid string) error {
 
@@ -12,7 +14,7 @@ func (db *appdbimpl) SetMyUsername(userid string, newUserid string) error {
 		return err
 	}
 	if count > 0 {
-		return errors.New("newUserid already in use")
+		return ErrorUseridExists
 	}
 
 	_, err = db.c.Exec("PRAGMA foreign_keys = OFF")

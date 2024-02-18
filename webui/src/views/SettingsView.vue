@@ -19,7 +19,11 @@ export default{
         localStorage.setItem("auth", this.newuserid)
         this.newuserid = ""
       } catch(e) {
-        this.errormsg = e.toString()
+        if (e.response && e.response.status === 409) {
+          this.errormsg = "UserID already in use"
+        } else {
+          this.errormsg = e.toString()
+        }
       }
     }
   },

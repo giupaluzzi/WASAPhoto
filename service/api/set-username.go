@@ -2,7 +2,9 @@ package api
 
 import (
 	"WASAPhoto/service/api/reqcontext"
+	"WASAPhoto/service/database"
 	"encoding/json"
+	"errors"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 )
@@ -28,9 +30,14 @@ func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httpro
 
 	err = rt.db.SetMyUsername(userId, newUserId.UserId)
 	if err != nil {
-		context.Logger.WithError(err).Error("setUsername/SetMyUsername: error while executing db function")
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+		if errors.Is(err, database.ErrorUseridExists) {
+			w.WriteHeader(http.StatusConflict)
+			return
+		} else {
+			context.Logger.WithError(err).Error("setUsername/SetMyUsername: error while executing db function")
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 	}
 
 	w.WriteHeader(http.StatusNoContent)
