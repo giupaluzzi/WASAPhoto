@@ -23,6 +23,15 @@ export default {
     }
   },
 
+  created() {
+    this.$watch(
+        () => this.$route.params.id,
+        (newid, oldid) => {
+          this.getProfile()
+        }
+    )
+  },
+
   methods:{
     // Follow/Unfollow method
     async follow() {
