@@ -80,7 +80,7 @@ export default {
 
         this.followers = response.data.followers != null ? response.data.followers : []
         this.following = response.data.following != null ? response.data.following : []
-        this.followersCounter = response.data.followers != null ? response.data.followers : []
+        this.followersCounter = response.data.followers != null ? response.data.followers.length : 0
         this.isFollowed = response.data.followers != null ? response.data.followers.find(f => f === localStorage.getItem("auth")) : false
         this.photos = response.data.photos != null ? response.data.photos : []
         this.postCounter = response.data.photos != null ? response.data.photos.length : 0
