@@ -117,7 +117,7 @@ export default {
       </h6>
       <div v-if="!isBanned">
         <hr>
-        <h4>Followers: {{followers.length}}</h4>
+        <h4>Followers: {{followersCounter}}</h4>
         <h4>Following: {{following.length}}</h4>
       </div>
       <hr>
