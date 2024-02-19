@@ -28,13 +28,13 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
+/*
 	contentType := r.Header.Get("Content-Type")
-	if strings.HasPrefix(contentType, "image/") {
+	if !strings.HasPrefix(contentType, "image/") {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
+*/
 	creationTime := time.Now()
 	photoId, err := rt.db.CreatePhoto(database.Photo{
 		UserId:   userId,
